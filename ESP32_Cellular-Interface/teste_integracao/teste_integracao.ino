@@ -4,6 +4,36 @@
 
 // Variáveis para armazenar dados
 #define EEPROM_SIZE 1000
+#define P1_ADDRS 0
+#define P2_ADDRS 18
+#define P3_ADDRS 36
+#define P4_ADDRS 61
+#define P5_ADDRS 79
+#define M1_ADDRS 97
+#define M2_ADDRS 131
+#define M3_ADDRS 165
+#define M4_ADDRS 199
+#define M5_ADDRS 233
+#define M6_ADDRS 267
+#define M7_ADDRS 301
+#define M8_ADDRS 335
+#define M9_ADDRS 369
+#define M10_ADDRS 403
+#define M11_ADDRS 437
+#define M12_ADDRS 471
+#define M13_ADDRS 505
+#define M14_ADDRS 539
+#define M15_ADDRS 573
+#define M16_ADDRS 607
+#define M17_ADDRS 641
+#define M18_ADDRS 675
+#define M19_ADDRS 709
+#define M20_ADDRS 743
+#define M21_ADDRS 777
+#define M22_ADDRS 811
+#define M23_ADDRS 845
+#define M24_ADDRS 879
+#define M25_ADDRS 913
 
 // Defina as credenciais Wi-Fi
 const char* ssid = "ESP32-Access-Point";
@@ -19,6 +49,7 @@ typedef struct {
 } Telefone;
 
 typedef struct {
+  int id;
   int idTelefone;
   char mensagem[30];
 } Mensagem;
@@ -199,11 +230,11 @@ const char* cadastro_html = R"=====(
     </style>
   </head>
   <body>
-    <form  class="formulario card" action='/salvar' method='post'>
+    <form  class="formulario card" action='/savePhone' method='post'>
       <h1>Cadastrar Telefone</h1>
       <div class="formulario__campo">
-        <label for='phone'>Número de Telefone:</label><br>
-        <input class="formulario__input" type='text' id='phone' name='phone' value=''>
+        <label for='number'>Número de Telefone:</label><br>
+        <input class="formulario__input" type='text' id='number' name='number' value=''>
       </div>
       <br>
       <div class="formulario__campo">
@@ -362,11 +393,58 @@ const char* acoes_html = R"=====(
 </html>
 )=====";
 
-Telefone buildTelephone(String phoneString, String operatorNameString){
-  char* operatorCode = verifyOperator(operatorNameString);
-  const char* phone = phoneString.c_str();
+int checkPhoneIndexWithAddress(int memoryAddress){
+  if(memoryAddress == P1_ADDRS){
+    return 1;
+  } else if (memoryAddress == P2_ADDRS){
+    return 2;
+  } else if (memoryAddress == P3_ADDRS){
+    return 3;
+  } else if (memoryAddress == P4_ADDRS){
+    return 4;
+  } else if (memoryAddress == P5_ADDRS){
+    return 5;
+  }
+  return -1;
+}
+
+int checkFreePhoneMemoryAddress() {
   Telefone telefone;
-  strcpy(telefone.numero, phone);
+
+  EEPROM.get(P1_ADDRS, telefone);
+  if (telefone.id == 0) {
+    return P1_ADDRS;
+  }
+
+  EEPROM.get(P2_ADDRS, telefone);
+  if (telefone.id == 0) {
+    return P2_ADDRS;
+  }
+
+  EEPROM.get(P3_ADDRS, telefone);
+  if (telefone.id == 0) {
+    return P3_ADDRS;
+  }
+
+  EEPROM.get(P4_ADDRS, telefone);
+  if (telefone.id == 0) {
+    return P4_ADDRS;
+  }
+
+  EEPROM.get(P5_ADDRS, telefone);
+  if (telefone.id == 0) {
+    return P5_ADDRS;
+  }
+
+  return -1; // Nenhum endereço livre encontrado
+}
+
+Telefone buildTelephone(int id, String numberString, String operatorNameString){
+  char* operatorCode = verifyOperator(operatorNameString);
+  const char* number = numberString.c_str();
+  Telefone telefone;
+  telefone.id = id;
+  strcpy(telefone.numero, number);
   strcpy(telefone.operadora, operatorCode);
   return telefone;
 }
@@ -400,23 +478,17 @@ void handleAcoes() {
   server.send(200, "text/html", acoes_html);
 }
 
-void handleSalvarTelefone() {
-  if (server.hasArg("phone") && server.hasArg("operator")) {
-    String phone = server.arg("phone");
+void handleSavePhone() {
+  if (server.hasArg("number") && server.hasArg("operator")) {
+    String number = server.arg("number");
     String operatorName = server.arg("operator");
 
-    Telefone telefone = buildTelephone(phone, operatorName);
+    int memoryAddress = checkFreePhoneMemoryAddress();
+    int id = checkPhoneIndexWithAddress(memoryAddress);
+    Telefone telefone = buildTelephone(id, number, operatorName);    
 
-    clearEEPROM();    
-    // Salva os dados na EEPROM
-    writeTelefone(0, telefone);
-    Telefone telefono;
-    Serial.println("TelefoneInformado");
-    readTelefone(0, telefono);
-    Serial.println(telefono.id);
-    Serial.println(telefono.numero);
-    Serial.println(telefono.operadora);
-    
+    writeTelefone(memoryAddress, telefone);
+    Serial.println("Telefone cadastrado com sucesso!");
     server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
   } else {
     server.send(400, "text/html", "<html><body><h1>Erro ao salvar os dados</h1><a href='index.html'>Voltar</a></body></html>");
@@ -478,11 +550,10 @@ void setup() {
   server.on("/cadastro.html", handleCadastro);
   server.on("/visualizar.html", handleVisualizar);
   server.on("/acoes.html", handleAcoes);
-  server.on("/salvar", handleSalvarTelefone);
+  server.on("/savePhone", handleSavePhone);
 
   server.begin();
   Serial.println("HTTP server started");
-  EEPROM.end();
 }
 
 void loop() {
