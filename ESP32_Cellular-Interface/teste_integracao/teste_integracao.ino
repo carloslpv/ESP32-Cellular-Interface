@@ -336,6 +336,80 @@ const char* visualizar_html = R"=====(
 </html>
 )=====";
 
+const char* acoes_html = R"=====(
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      :root {
+        --background-color: #EEEEEE; 
+        --button-color: #658864;
+      }
+      body{
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0;
+        background-color: var(--background-color);
+      }
+      .card { 
+        background-origin: white;
+        border-radius: 16px;
+      }
+      .container-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .card {
+        position: relative;
+        display: flex;
+        padding: 2.5rem;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .btn {
+        max-width: 5rem;
+        max-height: 5rem;
+        min-width: 6rem;
+        min-height: 2rem;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary { 
+        background-color: var(--button-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Ações</h1>
+      <div class="container-flex">
+        <a class="btn btn-primary" href='alterar.html'>Alterar</a>
+        <br>
+        <a class="btn btn-primary" href='deletar.html'>Deletar</a>
+      </div>
+      <br>
+    </div>
+    <a href='index.html'>Voltar</a>
+  </body>
+</html>
+)=====";
+
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
 
@@ -471,7 +545,7 @@ void handleVisualizar() {
 
 
 void handleAcoes() {
-  //server.send(200, "text/html", acoes_html);
+  server.send(200, "text/html", acoes_html);
 }
 
 void handleSavePhone() {
