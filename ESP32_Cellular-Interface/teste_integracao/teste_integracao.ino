@@ -133,8 +133,8 @@ const char* index_html = R"=====(
   <body>
     <h1>Configurações do ESP32</h1>
     <ul class="card box">
-      <li class="item"><a class="link__grande" href='cadastro.html'>Cadastrar Número e Mensagem</a></li>
-      <li class="item"><a class="link__grande" href='visualizar.html'>Visualizar Cadastros</a></li>
+      <li class="item"><a class="link__grande" href='cadastro.html'>Cadastrar Número</a></li>
+      <li class="item"><a class="link__grande" href='visualizar.html'>Visualizar Telefones Cadastrados</a></li>
       <li class="item"><a class="link__grande" href='cadastro.html'>Alterar Cadastros</a></li>
     </ul>
   </body>
