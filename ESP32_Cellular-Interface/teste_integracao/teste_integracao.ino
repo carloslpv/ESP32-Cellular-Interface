@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <EEPROM.h>
+#include <ArduinoJson.h>
 
 // Variáveis para armazenar dados
 #define EEPROM_SIZE 1000
@@ -34,6 +35,8 @@
 #define M23_ADDRS 845
 #define M24_ADDRS 879
 #define M25_ADDRS 913
+#define MAX_PHONES 5
+#define MAX_MESSAGES 25
 
 // Defina as credenciais Wi-Fi
 const char* ssid = "ESP32-Access-Point";
@@ -230,7 +233,7 @@ const char* cadastro_html = R"=====(
     </style>
   </head>
   <body>
-    <form  class="formulario card" action='/savePhone' method='post'>
+    <form  class="formulario card" action='/salvarPhone' method='post'>
       <h1>Cadastrar Telefone</h1>
       <div class="formulario__campo">
         <label for='number'>Número de Telefone:</label><br>
@@ -303,6 +306,19 @@ const char* visualizar_html = R"=====(
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
     </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const dataJson = $DATA_JSON$;
+        const container = document.getElementById('telefone-list');
+        dataJson.forEach(telefone => {
+          const p = document.createElement('p');
+          p.innerHTML = `Número: ${telefone.numero} <br> Operadora: ${telefone.operadora}`;
+          container.appendChild(p);
+          const hr = document.createElement('hr');
+          container.appendChild(hr);
+        });
+      });
+    </script>
   </head>
   <body>
     <div class="card">
@@ -312,6 +328,7 @@ const char* visualizar_html = R"=====(
         <a class="btn btn-primary" href='acoes.html'>Ações</a>
       </div>
       <br>
+      <div id="telefone-list"></div>
     </div>
     <br>
     <a href='index.html'>Voltar</a>
@@ -319,79 +336,35 @@ const char* visualizar_html = R"=====(
 </html>
 )=====";
 
-const char* acoes_html = R"=====(
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-      :root {
-        --background-color: #EEEEEE; 
-        --button-color: #658864;
-      }
-      body{
-        font-family: Arial, Helvetica, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin: 0;
-        background-color: var(--background-color);
-      }
-      .card { 
-        background-origin: white;
-        border-radius: 16px;
-      }
-      .container-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .card {
-        position: relative;
-        display: flex;
-        padding: 2.5rem;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 1rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      .btn {
-        max-width: 5rem;
-        max-height: 5rem;
-        min-width: 6rem;
-        min-height: 2rem;
-        border-radius: 16px;
-        border: none;
-        cursor: pointer;
-      }
-      .btn-primary { 
-        background-color: var(--button-color);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>Ações</h1>
-      <div class="container-flex">
-        <a class="btn btn-primary" href='alterar.html'>Alterar</a>
-        <br>
-        <a class="btn btn-primary" href='deletar.html'>Deletar</a>
-      </div>
-      <br>
-    </div>
-    <a href='index.html'>Voltar</a>
-  </body>
-</html>
-)=====";
+void returnAllMemoryAddressPhones(int* listPhones) {
+  Telefone telefone;
+
+  EEPROM.get(P1_ADDRS, telefone);
+  if (telefone.id != 0) {
+    listPhones[0] = P1_ADDRS;
+  }
+
+  EEPROM.get(P2_ADDRS, telefone);
+  if (telefone.id != 0) {
+    listPhones[1] = P2_ADDRS;
+  }
+
+  EEPROM.get(P3_ADDRS, telefone);
+  if (telefone.id != 0) {
+    listPhones[2] = P3_ADDRS;
+  }
+
+  EEPROM.get(P4_ADDRS, telefone);
+  if (telefone.id != 0) {
+    listPhones[3] = P4_ADDRS;
+  }
+
+  EEPROM.get(P5_ADDRS, telefone);
+  if (telefone.id != 0) {
+    listPhones[4] = P5_ADDRS;
+  }
+
+}
 
 int checkPhoneIndexWithAddress(int memoryAddress){
   if(memoryAddress == P1_ADDRS){
@@ -471,11 +444,34 @@ void handleCadastro() {
 }
 
 void handleVisualizar() {
-  server.send(200, "text/html", visualizar_html);
+    DynamicJsonDocument doc(1024);
+    JsonArray array = doc.to<JsonArray>();
+    int listPhones[5];
+    returnAllMemoryAddressPhones(listPhones);
+    Telefone telefone;
+
+    for(int i = 0; i < MAX_PHONES; i++){
+        readTelefone(listPhones[i], telefone);
+        if(telefone.id > 0){
+            JsonObject obj = array.createNestedObject();
+            obj["numero"] = telefone.numero;
+            obj["operadora"] = telefone.operadora;
+        }
+    }
+
+    String json;
+    serializeJson(doc, json);
+
+    String html = String(visualizar_html);
+    html.replace("$DATA_JSON$", json);
+
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/html", html);
 }
 
+
 void handleAcoes() {
-  server.send(200, "text/html", acoes_html);
+  //server.send(200, "text/html", acoes_html);
 }
 
 void handleSavePhone() {
@@ -550,7 +546,7 @@ void setup() {
   server.on("/cadastro.html", handleCadastro);
   server.on("/visualizar.html", handleVisualizar);
   server.on("/acoes.html", handleAcoes);
-  server.on("/savePhone", handleSavePhone);
+  server.on("/salvarPhone", handleSavePhone);
 
   server.begin();
   Serial.println("HTTP server started");
