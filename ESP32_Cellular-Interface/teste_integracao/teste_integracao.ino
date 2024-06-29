@@ -481,6 +481,9 @@ void handleSavePhone() {
 
     int memoryAddress = checkFreePhoneMemoryAddress();
     int id = checkPhoneIndexWithAddress(memoryAddress);
+    if(id < 0){
+      server.send(400, "text/html", "<html><body><h1>Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir</h1><a href='index.html'>Voltar</a></body></html>");
+    }
     Telefone telefone = buildTelephone(id, number, operatorName);    
 
     writeTelefone(memoryAddress, telefone);
