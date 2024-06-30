@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='icon' href='data:,'>
+
+  <style>
+    :root {
+      --background-color: #EEEEEE; 
+      --button-color: #658864;
+    }
+
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 0;
+      background-color: var(--background-color);
+    }
+
+    .formulario__campo { 
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .formulario__input { 
+      min-width: 25rem;
+      min-height: 2rem;
+      border-radius: 15px;
+    }
+
+    .formulario {
+      display: flex;
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .text-area { 
+        min-width: 25vw;
+        min-height: 10vh;
+        padding: .5rem;
+    }
+
+    .select {
+        background-color: #fff;
+        
+    }
+
+    .w-25vw {
+        min-width: 25vw;
+    }
+
+    .btn {
+      max-width: 5rem;
+      max-height: 5rem;
+      min-width: 6rem;
+      min-height: 2rem;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary { 
+      background-color: var(--button-color);
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      word-wrap: break-word;
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+    }
+
+  </style>
+</head>
+<body>
+  <form  class="formulario card" action='salvar_success.html' method='post'>
+    <h1>Vincular mensagem ao telefone:</h1>
+    <div class="formulario__campo">
+      <label for='phone'>Número de Telefone:</label><br>
+      <select class="formulario__input select w-25vw">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+        <option value="option4">Option 4</option>
+      </select>
+    </div>
+    <br>
+    <div class="formulario__campo">
+      <label for='message'>Mensagem:</label><br>
+      <textarea class="formulario__input text-area" id='message' name='message'></textarea>
+    </div>
+    <br><br>
+    <input class="btn btn-primary" type='submit' value='Salvar'>
+  </form>
+  <br>
+  <a href='index.html'>Voltar</a>
+</body>
+</html>
