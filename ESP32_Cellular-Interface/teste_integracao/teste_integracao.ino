@@ -37,6 +37,7 @@
 #define M25_ADDRS 913
 #define MAX_PHONES 5
 #define MAX_MESSAGES 25
+#define MAX_MESSAGES_NMBR 5
 
 // Defina as credenciais Wi-Fi
 const char* ssid = "ESP32-Access-Point";
@@ -655,10 +656,7 @@ const char* enviarSms_html = R"=====(
             </div>
           </div>
           <div class="container-flex-column">
-            <div class="container-flex">
-                <p  class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
-                <button class="btn btn-call">Enviar</button>
-            </div>
+            $MESSAGES$
           </div>
           <br>
         </div>
@@ -667,6 +665,137 @@ const char* enviarSms_html = R"=====(
     </body>
 </html>
 )=====";
+
+void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
+Mensagem mensagem;
+
+  if (phoneId == 1){
+    EEPROM.get(M1_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[0] = M1_ADDRS;
+    }
+
+    EEPROM.get(M2_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[1] = M2_ADDRS;
+    }
+
+    EEPROM.get(M3_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[2] = M3_ADDRS;
+    }
+
+    EEPROM.get(M4_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[3] = M4_ADDRS;
+    }
+
+    EEPROM.get(M5_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[4] = M5_ADDRS;
+    }
+  } else if (phoneId == 2){
+    EEPROM.get(M6_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[0] =  M6_ADDRS;
+    }
+
+    EEPROM.get(M7_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[1] = M7_ADDRS;
+    }
+
+    EEPROM.get(M8_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[2] = M8_ADDRS;
+    }
+
+    EEPROM.get(M9_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[3] = M9_ADDRS;
+    }
+
+    EEPROM.get(M10_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[4] = M10_ADDRS;
+    }
+  } else if (phoneId == 3){
+    EEPROM.get(M11_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      listMessages[0] = M11_ADDRS;
+    }
+
+    EEPROM.get(M12_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      listMessages[1] = M12_ADDRS;
+    }
+
+    EEPROM.get(M13_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      listMessages[2] = M13_ADDRS;
+    }
+
+    EEPROM.get(M14_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      listMessages[3] = M14_ADDRS;
+    }
+
+    EEPROM.get(M15_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      listMessages[4] = M15_ADDRS;
+    }
+  } else if (phoneId == 4) {
+    EEPROM.get(M16_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[0] =  M16_ADDRS;
+    }
+
+    EEPROM.get(M17_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[1] = M17_ADDRS;
+    }
+
+    EEPROM.get(M18_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[2] = M18_ADDRS;
+    }
+
+    EEPROM.get(M19_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[3] = M19_ADDRS;
+    }
+
+    EEPROM.get(M20_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[4] = M20_ADDRS;
+    }
+  } else if (phoneId == 5) {
+    EEPROM.get(M21_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[0] = M21_ADDRS;
+    }
+
+    EEPROM.get(M22_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[1] = M22_ADDRS;
+    }
+
+    EEPROM.get(M23_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[2] = M23_ADDRS;
+    }
+
+    EEPROM.get(M24_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[3] = M24_ADDRS;
+    }
+
+    EEPROM.get(M25_ADDRS, mensagem);
+    if (mensagem.id != 0) {
+      listMessages[4] = M25_ADDRS;
+    }
+  }
+}
 
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
@@ -957,7 +1086,7 @@ void handleCadastro() {
 void handleVisualizar() {
   DynamicJsonDocument doc(1024);
   JsonArray array = doc.to<JsonArray>();
-  int listPhones[5];
+  int listPhones[MAX_PHONES];
   returnAllMemoryAddressPhones(listPhones);
   Telefone telefone;
 
@@ -972,7 +1101,7 @@ void handleVisualizar() {
       divs += "</div>";
       divs += "<div class=\"container-flex\">";
       divs += "<button class=\"btn btn-call\">Ligar</button>";
-      divs += "<a class=\"btn btn-sms\" href=\"enviarSms.html\">SMS</a>";
+      divs += "<a class='btn btn-sms' href='enviarSms.html?phoneId=" + String(telefone.id) + "'>SMS</a>";
       divs += "</div>";
     }
   }
@@ -1056,8 +1185,29 @@ void handleSaveMessage(){
   server.send(400, "text/html", "<html><body><h1>Erro ao salvar a mensagem</h1><a href='index.html'>Voltar</a></body></html>");
 }
 
-void handleSendSms(){
-  server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
+void handleSendSms() {
+  String numeroStr = server.arg("phoneId");
+  int phoneId = numeroStr.toInt();
+  int listMessages[MAX_MESSAGES_NMBR];
+
+  returnAllMemoryAddressMessages(phoneId, listMessages);
+  Mensagem mensagem;
+  String messagesHtml;
+  for (int i = 0; i < 5; i++) {
+    readMensagem(listMessages[i], mensagem);
+    if (mensagem.id > 0) {
+      messagesHtml += "<div class=\"container-flex\">";
+      messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
+      messagesHtml += "<button class='btn btn-call'>Enviar</button>";
+      messagesHtml += "</div>";
+    }
+  }
+
+  String html = String(enviarSms_html);
+  html.replace("$MESSAGES$", messagesHtml);
+  
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200, "text/html", html);
 }
 
 void writeTelefone(int address, Telefone tel) {
