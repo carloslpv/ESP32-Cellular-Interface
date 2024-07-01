@@ -136,6 +136,7 @@ const char* index_html = R"=====(
       <li class="item"><a class="link__grande" href='cadastro.html'>Cadastrar Número</a></li>
       <li class="item"><a class="link__grande" href='visualizar.html'>Visualizar Telefones Cadastrados</a></li>
       <li class="item"><a class="link__grande" href='cadastro.html'>Alterar Cadastros</a></li>
+      <li class="item"><a class="link__grande" href='cadastraMessage.html'>Cadastrar Mensagem</a></li>
     </ul>
   </body>
 </html>
@@ -242,7 +243,7 @@ const char* cadastro_html = R"=====(
       <br>
       <div class="formulario__campo">
         <select name="operator" required="required">
-          <option value="">Selecione uma operadora</option>
+          <option value="" disabled selected>Selecione uma operadora</option>
           <option value="oi">Oi</option>
           <option value="vivo">Vivo</option>
           <option value="claro">Claro</option>
@@ -410,6 +411,131 @@ const char* acoes_html = R"=====(
 </html>
 )=====";
 
+const char* cadastraMessage_html = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='icon' href='data:,'>
+  <style>
+    :root {
+      --background-color: #EEEEEE; 
+      --button-color: #658864;
+    }
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 0;
+      background-color: var(--background-color);
+    }
+    .formulario__campo { 
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .formulario__input { 
+      min-width: 25rem;
+      min-height: 2rem;
+      border-radius: 15px;
+    }
+    .formulario {
+      display: flex;
+      align-items: start;
+      flex-direction: column;
+    }
+    .text-area { 
+        min-width: 25vw;
+        min-height: 10vh;
+        padding: .5rem;
+    }
+    .select {
+        background-color: #fff;
+        
+    }
+    .w-25vw {
+        min-width: 25vw;
+    }
+    .btn {
+      max-width: 5rem;
+      max-height: 5rem;
+      min-width: 6rem;
+      min-height: 2rem;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary { 
+      background-color: var(--button-color);
+    }
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      word-wrap: break-word;
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+    }
+    .formulario__campo select {
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        font-size: 1rem;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+
+      .formulario__campo select:focus {
+        outline: none;
+        border-color: var(--button-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
+
+      .formulario__campo select option {
+        padding: 0.5rem;
+  </style>
+</head>
+<body>
+  <form  class="formulario card" action='/saveMessage' method='post'>
+    <h1>Vincular mensagem ao telefone:</h1>
+    <div class="formulario__campo">
+      <label for='phone'>Número de Telefone:</label><br>
+      <select class="formulario__input select w-25vw" name="phone">
+        <option value=""disabled selected>Selecione um número de telefone</option>
+        $OPTIONS$
+      </select>
+    </div>
+    <br>
+    <div class="formulario__campo">
+      <label for='message'>Mensagem:</label><br>
+      <textarea maxlength="30" class="formulario__input text-area" id='message' name='message'></textarea>
+    </div>
+    <br><br>
+    <input class="btn btn-primary" type='submit' value='Salvar'>
+  </form>
+  <br>
+  <a href='index.html'>Voltar</a>
+</body>
+</html>
+)=====";
+
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
 
@@ -455,6 +581,22 @@ int checkPhoneIndexWithAddress(int memoryAddress){
   return -1;
 }
 
+int checkMessageIndexWithAddress(int memoryAddress){
+
+  if(memoryAddress == M1_ADDRS || memoryAddress == M6_ADDRS || memoryAddress == M11_ADDRS || memoryAddress == M16_ADDRS || memoryAddress == M21_ADDRS){
+    return 1;
+  } else if (memoryAddress == M2_ADDRS || memoryAddress == M7_ADDRS || memoryAddress == M12_ADDRS || memoryAddress == M17_ADDRS || memoryAddress == M22_ADDRS){
+    return 2;
+  } else if (memoryAddress == M3_ADDRS || memoryAddress == M8_ADDRS || memoryAddress == M13_ADDRS || memoryAddress == M18_ADDRS || memoryAddress == M23_ADDRS){
+    return 3;
+  } else if (memoryAddress == M4_ADDRS || memoryAddress == M9_ADDRS || memoryAddress == M14_ADDRS || memoryAddress ==M19_ADDRS || memoryAddress ==M24_ADDRS){
+    return 4;
+  } else if (memoryAddress == M5_ADDRS || memoryAddress == M10_ADDRS || memoryAddress == M15_ADDRS || memoryAddress == M20_ADDRS || memoryAddress == M25_ADDRS){
+    return 5;
+  }
+  return -1;
+}
+
 int checkFreePhoneMemoryAddress() {
   Telefone telefone;
 
@@ -483,7 +625,171 @@ int checkFreePhoneMemoryAddress() {
     return P5_ADDRS;
   }
 
-  return -1; // Nenhum endereço livre encontrado
+  return -1;
+}
+
+int checkFreeMessageMemoryAddress(int phoneId) {
+  Mensagem mensagem;
+
+  if (phoneId == 1){
+    EEPROM.get(M1_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M1_ADDRS;
+    }
+
+    EEPROM.get(M2_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M2_ADDRS;
+    }
+
+    EEPROM.get(M3_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M3_ADDRS;
+    }
+
+    EEPROM.get(M4_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M4_ADDRS;
+    }
+
+    EEPROM.get(M5_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M5_ADDRS;
+    }
+  } else if (phoneId == 2){
+    EEPROM.get(M6_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M6_ADDRS;
+    }
+
+    EEPROM.get(M7_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M7_ADDRS;
+    }
+
+    EEPROM.get(M8_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M8_ADDRS;
+    }
+
+    EEPROM.get(M9_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M9_ADDRS;
+    }
+
+    EEPROM.get(M10_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M10_ADDRS;
+    }
+  } else if (phoneId == 3){
+    EEPROM.get(M11_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M11_ADDRS;
+    }
+
+    EEPROM.get(M12_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M12_ADDRS;
+    }
+
+    EEPROM.get(M13_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M13_ADDRS;
+    }
+
+    EEPROM.get(M14_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M14_ADDRS;
+    }
+
+    EEPROM.get(M15_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M15_ADDRS;
+    }
+  } else if (phoneId == 4) {
+    EEPROM.get(M16_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M16_ADDRS;
+    }
+
+    EEPROM.get(M17_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M17_ADDRS;
+    }
+
+    EEPROM.get(M18_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M18_ADDRS;
+    }
+
+    EEPROM.get(M19_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M19_ADDRS;
+    }
+
+    EEPROM.get(M20_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M20_ADDRS;
+    }
+  } else if (phoneId == 5) {
+    EEPROM.get(M21_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M21_ADDRS;
+    }
+
+    EEPROM.get(M22_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M22_ADDRS;
+    }
+
+    EEPROM.get(M23_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M23_ADDRS;
+    }
+
+    EEPROM.get(M24_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M24_ADDRS;
+    }
+
+    EEPROM.get(M25_ADDRS, mensagem);
+    if (mensagem.id == 0) {
+      return M25_ADDRS;
+    }
+  }
+
+  return -1;
+}
+
+int checkPhoneMemoryAddressWithNumber(const char* phoneNumber) {
+  Telefone telefone;
+
+  EEPROM.get(P1_ADDRS, telefone);
+  if (strcmp(telefone.numero,phoneNumber) == 0) {
+    return P1_ADDRS;
+  }
+
+  EEPROM.get(P2_ADDRS, telefone);
+  if (strcmp(telefone.numero,phoneNumber) == 0) {
+    return P2_ADDRS;
+  }
+
+  EEPROM.get(P3_ADDRS, telefone);
+  if (strcmp(telefone.numero,phoneNumber) == 0) {
+    return P3_ADDRS;
+  }
+
+  EEPROM.get(P4_ADDRS, telefone);
+  if (strcmp(telefone.numero,phoneNumber) == 0) {
+    return P4_ADDRS;
+  }
+
+  EEPROM.get(P5_ADDRS, telefone);
+  if (strcmp(telefone.numero,phoneNumber) == 0) {
+    return P5_ADDRS;
+  }
+
+  return -1;
 }
 
 Telefone buildTelephone(int id, String numberString, String operatorNameString){
@@ -543,7 +849,6 @@ void handleVisualizar() {
     server.send(200, "text/html", html);
 }
 
-
 void handleAcoes() {
   server.send(200, "text/html", acoes_html);
 }
@@ -566,6 +871,59 @@ void handleSavePhone() {
   } else {
     server.send(400, "text/html", "<html><body><h1>Erro ao salvar os dados</h1><a href='index.html'>Voltar</a></body></html>");
   }
+}
+
+void handleCadastraMessageGetPhones(){
+   int listPhones[MAX_PHONES];
+    returnAllMemoryAddressPhones(listPhones);
+    Telefone telefone;
+
+    String options = "";
+    for (int i = 0; i < MAX_PHONES; i++) {
+        readTelefone(listPhones[i], telefone);
+        if (telefone.id > 0) {
+            options += "<option value='" + String(telefone.numero) + "'>" + String(telefone.numero) + "</option>";
+        }
+    }
+
+    String html = String(cadastraMessage_html);
+    html.replace("$OPTIONS$", options);
+
+    server.send(200, "text/html", html);
+}
+
+Mensagem buildMensagem(int messageIndex, int phoneId, String messageString){
+  const char* message  = messageString.c_str();
+  Mensagem mensagem;
+  mensagem.id = messageIndex;
+  mensagem.idTelefone = phoneId;
+  strcpy(mensagem.mensagem, message);
+  return mensagem;
+}
+
+void handleSaveMessage(){
+  if (server.hasArg("phone") && server.hasArg("message")) {
+    String phone = server.arg("phone");
+    String message = server.arg("message");
+    const char* number = phone.c_str();
+    int phoneMemoryAddress = checkPhoneMemoryAddressWithNumber(number);
+    int phoneId = checkPhoneIndexWithAddress(phoneMemoryAddress);
+    int messageMemoryAddress = checkFreeMessageMemoryAddress(phoneId);
+    int messageIndex = checkMessageIndexWithAddress(messageMemoryAddress);
+    if(messageIndex >= 0){
+      Mensagem mensagem = buildMensagem(messageIndex, phoneId, message);
+      writeMensagem(messageMemoryAddress, mensagem);
+      Serial.println("Mensagem cadastrada com sucesso...");
+      Serial.print("Endereco: ");Serial.println(messageMemoryAddress);
+      Serial.println(mensagem.id);
+      Serial.println(mensagem.idTelefone);
+      Serial.println(mensagem.mensagem);
+      server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
+    } else if(messageIndex < 0){
+      server.send(400, "text/html", "<html><body><h1>Limite de mensagens excedido, favor excluir um cadastro</h1><a href='index.html'>Voltar</a></body></html>");
+    }
+  }
+  server.send(400, "text/html", "<html><body><h1>Erro ao salvar a mensagem</h1><a href='index.html'>Voltar</a></body></html>");
 }
 
 void writeTelefone(int address, Telefone tel) {
@@ -624,6 +982,8 @@ void setup() {
   server.on("/visualizar.html", handleVisualizar);
   server.on("/acoes.html", handleAcoes);
   server.on("/salvarPhone", handleSavePhone);
+  server.on("/cadastraMessage.html", handleCadastraMessageGetPhones);
+  server.on("/saveMessage", handleSaveMessage);
 
   server.begin();
   Serial.println("HTTP server started");
