@@ -6,7 +6,6 @@
         <style>
             :root {
               --background-color: #EEEEEE; 
-              --button-color: #658864;
             }
         
             body{
@@ -55,10 +54,29 @@
               justify-content: center;
               border-radius: 16px;
               border: none;
+              cursor: pointer;
             }
         
             .btn-primary { 
-              background-color: var(--button-color);
+              background-color: #007bff;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-danger { 
+              background-color: #dc3545;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-call { 
+              background-color: #28a745;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-sms { 
+              background-color: #17a2b8;
               color:#fff; 
               text-decoration: none;
             }
@@ -67,6 +85,15 @@
               display: flex;
               justify-content: space-between;
               align-items: center;
+              gap: .3rem;
+            }
+
+            .container-flex-column {
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              align-items: center;
+              gap: .3rem;
             }
 
             .card {
@@ -88,12 +115,21 @@
     </head>
     <body>
         <div class="card">
-            <h1>Visualizar Cadastros</h1>
-            <div class="container-flex">
-              <p><strong>Contato</strong></p>
-              <a class="btn btn-primary" href="/htmlSeparado/acoes.html">Ações</a>
+          <h1>Visualizar Cadastros</h1>
+          <div class="container-flex">
+            <p><strong>Contato</strong></p>
+            <div class="container-flex-column">
+              <div class="container-flex">
+                <a class="btn btn-primary" href="cadastro.html">Editar</a>
+                <button class="btn btn-danger">Excluir</button>
+              </div>
+              <div class="container-flex">
+                <button class="btn btn-call">Ligar</button>
+                <a class="btn btn-sms" href="enviarSms.html">SMS</a>
+              </div>
             </div>
-            <br>
+          </div>
+          <br>
         </div>
         <br>
         <a href='index.html'>Voltar</a>
