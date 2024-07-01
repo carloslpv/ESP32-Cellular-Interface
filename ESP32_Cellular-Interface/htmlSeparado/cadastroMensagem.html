@@ -27,6 +27,7 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: space-between;
+      width: 100%;
     }
 
     .formulario__input { 
@@ -42,18 +43,15 @@
     }
 
     .text-area { 
-        min-width: 25vw;
-        min-height: 10vh;
-        padding: .5rem;
+      width: 100%;
+      min-height: 10vh;
+      padding: .5rem;
+      border-radius: 15px;
+      box-sizing: border-box;
     }
 
     .select {
-        background-color: #fff;
-        
-    }
-
-    .w-25vw {
-        min-width: 25vw;
+      background-color: #fff;
     }
 
     .btn {
@@ -73,6 +71,7 @@
     .card {
       position: relative;
       display: flex;
+      padding: 2.5rem;
       flex-direction: column;
       min-width: 0;
       word-wrap: break-word;
@@ -81,7 +80,6 @@
       border: 1px solid rgba(0, 0, 0, 0.125);
       border-radius: 1rem;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 2.5rem;
     }
 
   </style>
@@ -91,7 +89,7 @@
     <h1>Vincular mensagem ao telefone:</h1>
     <div class="formulario__campo">
       <label for='phone'>Número de Telefone:</label><br>
-      <select class="formulario__input select w-25vw">
+      <select class="formulario__input select">
         <option value="option1">Option 1</option>
         <option value="option2">Option 2</option>
         <option value="option3">Option 3</option>
