@@ -833,9 +833,6 @@ void handleVisualizar() {
   server.send(200, "text/html", html);
 }
 
-void handleAcoes() {
-  server.send(200, "text/html", acoes_html);
-}
 
 void handleSavePhone() {
   if (server.hasArg("number") && server.hasArg("operator")) {
