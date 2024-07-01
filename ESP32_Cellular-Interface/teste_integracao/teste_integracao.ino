@@ -563,19 +563,18 @@ void returnAllMemoryAddressPhones(int* listPhones) {
   if (telefone.id != 0) {
     listPhones[4] = P5_ADDRS;
   }
-
 }
 
-int checkPhoneIndexWithAddress(int memoryAddress){
-  if(memoryAddress == P1_ADDRS){
+int checkPhoneIndexWithAddress(int memoryAddress) {
+  if (memoryAddress == P1_ADDRS) {
     return 1;
-  } else if (memoryAddress == P2_ADDRS){
+  } else if (memoryAddress == P2_ADDRS) {
     return 2;
-  } else if (memoryAddress == P3_ADDRS){
+  } else if (memoryAddress == P3_ADDRS) {
     return 3;
-  } else if (memoryAddress == P4_ADDRS){
+  } else if (memoryAddress == P4_ADDRS) {
     return 4;
-  } else if (memoryAddress == P5_ADDRS){
+  } else if (memoryAddress == P5_ADDRS) {
     return 5;
   }
   return -1;
@@ -624,7 +623,7 @@ int checkFreePhoneMemoryAddress() {
   if (telefone.id == 0) {
     return P5_ADDRS;
   }
-
+  
   return -1;
 }
 
@@ -792,7 +791,7 @@ int checkPhoneMemoryAddressWithNumber(const char* phoneNumber) {
   return -1;
 }
 
-Telefone buildTelephone(int id, String numberString, String operatorNameString){
+Telefone buildTelephone(int id, String numberString, String operatorNameString) {
   char* operatorCode = verifyOperator(operatorNameString);
   const char* number = numberString.c_str();
   Telefone telefone;
@@ -824,29 +823,29 @@ void handleCadastro() {
 }
 
 void handleVisualizar() {
-    DynamicJsonDocument doc(1024);
-    JsonArray array = doc.to<JsonArray>();
-    int listPhones[5];
-    returnAllMemoryAddressPhones(listPhones);
-    Telefone telefone;
+  DynamicJsonDocument doc(1024);
+  JsonArray array = doc.to<JsonArray>();
+  int listPhones[5];
+  returnAllMemoryAddressPhones(listPhones);
+  Telefone telefone;
 
-    for(int i = 0; i < MAX_PHONES; i++){
-        readTelefone(listPhones[i], telefone);
-        if(telefone.id > 0){
-            JsonObject obj = array.createNestedObject();
-            obj["numero"] = telefone.numero;
-            obj["operadora"] = telefone.operadora;
-        }
+  for (int i = 0; i < MAX_PHONES; i++) {
+    readTelefone(listPhones[i], telefone);
+    if (telefone.id > 0) {
+      JsonObject obj = array.createNestedObject();
+      obj["numero"] = telefone.numero;
+      obj["operadora"] = telefone.operadora;
     }
+  }
 
-    String json;
-    serializeJson(doc, json);
+  String json;
+  serializeJson(doc, json);
 
-    String html = String(visualizar_html);
-    html.replace("$DATA_JSON$", json);
+  String html = String(visualizar_html);
+  html.replace("$DATA_JSON$", json);
 
-    server.sendHeader("Access-Control-Allow-Origin", "*");
-    server.send(200, "text/html", html);
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200, "text/html", html);
 }
 
 void handleAcoes() {
@@ -860,10 +859,10 @@ void handleSavePhone() {
 
     int memoryAddress = checkFreePhoneMemoryAddress();
     int id = checkPhoneIndexWithAddress(memoryAddress);
-    if(id < 0){
+    if (id < 0) {
       server.send(400, "text/html", "<html><body><h1>Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir</h1><a href='index.html'>Voltar</a></body></html>");
     }
-    Telefone telefone = buildTelephone(id, number, operatorName);    
+    Telefone telefone = buildTelephone(id, number, operatorName);
 
     writeTelefone(memoryAddress, telefone);
     Serial.println("Telefone cadastrado com sucesso!");
@@ -936,11 +935,11 @@ void writeMensagem(int address, Mensagem msg) {
   EEPROM.commit();
 }
 
-void readTelefone(int address, Telefone &tel) {
+void readTelefone(int address, Telefone& tel) {
   EEPROM.get(address, tel);
 }
 
-void readMensagem(int address, Mensagem &msg) {
+void readMensagem(int address, Mensagem& msg) {
   EEPROM.get(address, msg);
 }
 
@@ -967,6 +966,59 @@ void clearEEPROM() {
   EEPROM.commit();
 }
 
+int returnPhoneFromNumber(String number) {
+  Telefone telefone;
+  EEPROM.get(P1_ADDRS, telefone);
+  if (strcmp(telefone.numero, number.c_str()) == 0) {
+    return P1_ADDRS;
+  }
+
+  EEPROM.get(P2_ADDRS, telefone);
+  if (strcmp(telefone.numero, number.c_str()) == 0) {
+    return P2_ADDRS;
+  }
+
+  EEPROM.get(P3_ADDRS, telefone);
+  if (strcmp(telefone.numero, number.c_str()) == 0) {
+    return P3_ADDRS;
+  }
+
+  EEPROM.get(P4_ADDRS, telefone);
+  if (strcmp(telefone.numero, number.c_str()) == 0) {
+    return P4_ADDRS;
+  }
+
+  EEPROM.get(P5_ADDRS, telefone);
+  if (strcmp(telefone.numero, number.c_str()) == 0) {
+    return P5_ADDRS;
+  }
+
+  return -1;
+}
+
+void sendCall(String number) {
+
+  Telefone telefone;
+  int phoneAddress = returnPhoneFromNumber(number);
+  EEPROM.get(phoneAddress, telefone);
+
+
+  String comando = "ATD0" + String(telefone.operadora) + String(telefone.numero) + ";\n";
+  Serial.println("testechamada");
+  Serial.println(comando);
+  updateSerial();
+}
+
+void updateSerial() {
+  delay(500);
+  while (Serial.available()) {
+    Serial2.write(Serial.read());  //Forward what Serial received to Software Serial Port
+  }
+  while (Serial2.available()) {
+    Serial.write(Serial2.read());  //Forward what Software Serial received to Serial Port
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(EEPROM_SIZE);
@@ -987,6 +1039,8 @@ void setup() {
 
   server.begin();
   Serial.println("HTTP server started");
+
+  sendCall("49988888888");
 }
 
 void loop() {
