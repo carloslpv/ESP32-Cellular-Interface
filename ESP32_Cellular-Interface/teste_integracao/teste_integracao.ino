@@ -1154,6 +1154,10 @@ void updateSerial() {
   }
 }
 
+void handleIndex(){
+  server.send(200, "text/html", index_html);
+}
+
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(EEPROM_SIZE);
@@ -1171,9 +1175,11 @@ void setup() {
   server.on("/cadastraMessage.html", handleCadastraMessageGetPhones);
   server.on("/saveMessage", handleSaveMessage);
   server.on("/enviarSms.html", handleSendSms);
+  server.on("/index.html", handleIndex);
 
   server.begin();
   Serial.println("HTTP server started");
+  clearEEPROM();
 }
 
 void loop() {
