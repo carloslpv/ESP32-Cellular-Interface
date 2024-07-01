@@ -518,6 +518,156 @@ const char* cadastraMessage_html = R"=====(
 </html>
 )=====";
 
+const char* enviarSms_html = R"=====(
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='icon' href='data:,'>
+        <style>
+            :root {
+              --background-color: #EEEEEE; 
+            }
+        
+            body{
+              font-family: Arial, Helvetica, sans-serif;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              margin: 0;
+              background-color: var(--background-color);
+            }
+
+            .card { 
+                background-origin: white;
+                border-radius: 16px;
+            }
+        
+            .formulario__campo { 
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: space-between;
+            }
+        
+            .formulario__input { 
+              min-width: 25rem;
+              min-height: 2rem;
+              border-radius: 15px;
+            }
+        
+            .formulario {
+              display: flex;
+              align-items: start;
+              flex-direction: column;
+            }
+        
+            .btn {
+              max-width: 5rem;
+              max-height: 5rem;
+              min-width: 6rem;
+              min-height: 2rem;
+              align-items: center;
+              display: flex;
+              justify-content: center;
+              border-radius: 16px;
+              border: none;
+              cursor: pointer;
+            }
+
+            .paragrafo {
+                max-width: 60%;
+            }
+        
+            .btn-primary { 
+              background-color: #007bff;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-danger { 
+              background-color: #dc3545;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-call { 
+              background-color: #28a745;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-sms { 
+              background-color: #17a2b8;
+              color:#fff; 
+              text-decoration: none;
+            }
+            
+            .container-flex {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: .3rem;
+            }
+
+            .container-flex-column {
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              align-items: center;
+              gap: .3rem;
+            }
+
+            .card {
+                position: relative;
+                display: flex;
+                padding: 2.5rem;
+                flex-direction: column;
+                min-width: 0;
+                word-wrap: break-word;
+                background-color: #fff;
+                background-clip: border-box;
+                border: 1px solid rgba(0, 0, 0, 0.125);
+                border-radius: 1rem;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+        
+          </style>
+    </head>
+    <body>
+        <div class="card">
+          <h1>Enviar Mensagem</h1>
+          <div class="container-flex-column">
+            <p><strong>Contato</strong></p>
+            <div class="container-flex">
+                <p class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
+                <button class="btn btn-call">Enviar</button>
+            </div>
+          </div>
+          <div class="container-flex-column">
+            <div class="container-flex">
+                <p class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
+                <button class="btn btn-call">Enviar</button>
+            </div>
+          </div>
+          <div class="container-flex-column">
+            <div class="container-flex">
+                <p  class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
+                <button class="btn btn-call">Enviar</button>
+            </div>
+          </div>
+          <br>
+        </div>
+        <br>
+        <a href='index.html'>Voltar</a>
+    </body>
+</html>
+)=====";
+
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
 
@@ -833,7 +983,6 @@ void handleVisualizar() {
   server.send(200, "text/html", html);
 }
 
-
 void handleSavePhone() {
   if (server.hasArg("number") && server.hasArg("operator")) {
     String number = server.arg("number");
@@ -905,6 +1054,10 @@ void handleSaveMessage(){
     }
   }
   server.send(400, "text/html", "<html><body><h1>Erro ao salvar a mensagem</h1><a href='index.html'>Voltar</a></body></html>");
+}
+
+void handleSendSms(){
+  server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
 }
 
 void writeTelefone(int address, Telefone tel) {
@@ -1017,6 +1170,7 @@ void setup() {
   server.on("/salvarPhone", handleSavePhone);
   server.on("/cadastraMessage.html", handleCadastraMessageGetPhones);
   server.on("/saveMessage", handleSaveMessage);
+  server.on("/enviarSms.html", handleSendSms);
 
   server.begin();
   Serial.println("HTTP server started");
