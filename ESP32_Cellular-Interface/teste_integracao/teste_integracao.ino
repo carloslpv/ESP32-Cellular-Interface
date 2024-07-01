@@ -269,143 +269,125 @@ const char* visualizar_html = R"=====(
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='icon' href='data:,'>
     <style>
-      :root {
-        --background-color: #EEEEEE; 
-        --button-color: #658864;
-      }
-      body{
-        font-family: Arial, Helvetica, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin: 0;
-        background-color: var(--background-color);
-      }
-      .card { 
-        background-origin: white;
-        border-radius: 16px;
-      }
-      .container-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .card {
-        position: relative;
-        display: flex;
-        padding: 2.5rem;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 1rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
+            :root {
+              --background-color: #EEEEEE; 
+            }
+        
+            body{
+              font-family: Arial, Helvetica, sans-serif;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              margin: 0;
+              background-color: var(--background-color);
+            }
+
+            .card { 
+                background-origin: white;
+                border-radius: 16px;
+            }
+        
+            .formulario__campo { 
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: space-between;
+            }
+        
+            .formulario__input { 
+              min-width: 25rem;
+              min-height: 2rem;
+              border-radius: 15px;
+            }
+        
+            .formulario {
+              display: flex;
+              align-items: start;
+              flex-direction: column;
+            }
+        
+            .btn {
+              max-width: 5rem;
+              max-height: 5rem;
+              min-width: 6rem;
+              min-height: 2rem;
+              align-items: center;
+              display: flex;
+              justify-content: center;
+              border-radius: 16px;
+              border: none;
+              cursor: pointer;
+            }
+        
+            .btn-primary { 
+              background-color: #007bff;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-danger { 
+              background-color: #dc3545;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-call { 
+              background-color: #28a745;
+              color:#fff; 
+              text-decoration: none;
+            }
+        
+            .btn-sms { 
+              background-color: #17a2b8;
+              color:#fff; 
+              text-decoration: none;
+            }
+            
+            .container-flex {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: .3rem;
+            }
+
+            .container-flex-column {
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              align-items: center;
+              gap: .3rem;
+            }
+
+            .card {
+                position: relative;
+                display: flex;
+                padding: 2.5rem;
+                flex-direction: column;
+                min-width: 0;
+                word-wrap: break-word;
+                background-color: #fff;
+                background-clip: border-box;
+                border: 1px solid rgba(0, 0, 0, 0.125);
+                border-radius: 1rem;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }    
     </style>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const dataJson = $DATA_JSON$;
-        const container = document.getElementById('telefone-list');
-        dataJson.forEach(telefone => {
-          const p = document.createElement('p');
-          p.innerHTML = `Número: ${telefone.numero} <br> Operadora: ${telefone.operadora}`;
-          container.appendChild(p);
-          const hr = document.createElement('hr');
-          container.appendChild(hr);
-        });
-      });
-    </script>
   </head>
   <body>
     <div class="card">
       <h1>Visualizar Cadastros</h1>
       <div class="container-flex">
         <p><strong>Contato</strong></p>
-        <a class="btn btn-primary" href='acoes.html'>Ações</a>
       </div>
       <br>
-      <div id="telefone-list"></div>
+      <div id="telefone-list">
+        $PHONES$
+      </div>
     </div>
     <br>
-    <a href='index.html'>Voltar</a>
-  </body>
-</html>
-)=====";
-
-const char* acoes_html = R"=====(
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-      :root {
-        --background-color: #EEEEEE; 
-        --button-color: #658864;
-      }
-      body{
-        font-family: Arial, Helvetica, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        margin: 0;
-        background-color: var(--background-color);
-      }
-      .card { 
-        background-origin: white;
-        border-radius: 16px;
-      }
-      .container-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .card {
-        position: relative;
-        display: flex;
-        padding: 2.5rem;
-        flex-direction: column;
-        min-width: 0;
-        word-wrap: break-word;
-        background-color: #fff;
-        background-clip: border-box;
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 1rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      .btn {
-        max-width: 5rem;
-        max-height: 5rem;
-        min-width: 6rem;
-        min-height: 2rem;
-        border-radius: 16px;
-        border: none;
-        cursor: pointer;
-      }
-      .btn-primary { 
-        background-color: var(--button-color);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>Ações</h1>
-      <div class="container-flex">
-        <a class="btn btn-primary" href='alterar.html'>Alterar</a>
-        <br>
-        <a class="btn btn-primary" href='deletar.html'>Deletar</a>
-      </div>
-      <br>
-    </div>
     <a href='index.html'>Voltar</a>
   </body>
 </html>
@@ -829,20 +811,23 @@ void handleVisualizar() {
   returnAllMemoryAddressPhones(listPhones);
   Telefone telefone;
 
+  String divs = "";
   for (int i = 0; i < MAX_PHONES; i++) {
     readTelefone(listPhones[i], telefone);
     if (telefone.id > 0) {
-      JsonObject obj = array.createNestedObject();
-      obj["numero"] = telefone.numero;
-      obj["operadora"] = telefone.operadora;
+      divs += "<div id = telefone:" + String(i) + "\>" + "Número: " + String(telefone.numero) + "<br>" + "Operadora: " + String(telefone.operadora) +  "</div>";
+      divs += "<div class=\"container-flex\">";
+      divs += "<a class=\"btn btn-primary\" href=\"cadastro.html\">Editar</a>";
+      divs += "<button class=\"btn btn-danger\">Excluir</button>";
+      divs += "</div>";
+      divs += "<div class=\"container-flex\">";
+      divs += "<button class=\"btn btn-call\">Ligar</button>";
+      divs += "<a class=\"btn btn-sms\" href=\"enviarSms.html\">SMS</a>";
+      divs += "</div>";
     }
   }
-
-  String json;
-  serializeJson(doc, json);
-
   String html = String(visualizar_html);
-  html.replace("$DATA_JSON$", json);
+  html.replace("$PHONES$", divs);
 
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "text/html", html);
@@ -1032,15 +1017,12 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/cadastro.html", handleCadastro);
   server.on("/visualizar.html", handleVisualizar);
-  server.on("/acoes.html", handleAcoes);
   server.on("/salvarPhone", handleSavePhone);
   server.on("/cadastraMessage.html", handleCadastraMessageGetPhones);
   server.on("/saveMessage", handleSaveMessage);
 
   server.begin();
   Serial.println("HTTP server started");
-
-  sendCall("49988888888");
 }
 
 void loop() {
