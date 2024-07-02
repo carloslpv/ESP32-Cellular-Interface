@@ -1103,8 +1103,8 @@ void handleVisualizar() {
         divs += "<button class=\"btn btn-danger\">Excluir</button>";
         divs += "</div>";
         divs += "<div class=\"container-flex\">";
-        divs += "<button class=\"btn btn-call\">Ligar</button>";
-        divs += "<a class='btn btn-sms' href='enviarSms.html?phoneId=" + String(telefone.id) + "'>SMS</a>";
+        divs += "<a class=\"btn btn-call\" href=sendCall.html?phoneId=" +String(telefone.id) + ">Ligar</a>";
+        divs += "<a class=\"btn btn-sms\" href=enviarSms.html?phoneId=" + String(telefone.id) + ">SMS</a>";
         divs += "</div><br>";
       }
     }
@@ -1194,25 +1194,14 @@ void handleSendSms() {
   returnAllMemoryAddressMessages(phoneId, listMessages);
   Mensagem mensagem;
   String messagesHtml;
-  
-  for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
-    Serial.print("listMessages[");
-    Serial.print(i);
-    Serial.print("]: ");
-    Serial.println(listMessages[i]);
-  }
 
   for (int i = 0; i < 5; i++) {
     if(listMessages[i] >= 0){
       readMensagem(listMessages[i], mensagem);
-      Serial.println("MENSAGEM ENCONTRADA");
-      Serial.print("Id msg: ");Serial.println(mensagem.id);
-      Serial.print("Id nmbr: ");Serial.println(mensagem.idTelefone);
-      Serial.print("mensagem: ");Serial.println(mensagem.mensagem);
       if (mensagem.id > 0) {
         messagesHtml += "<div class=\"container-flex\">";
         messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
-        messagesHtml += "<button class='btn btn-call'>Enviar</button>";
+        messagesHtml += "<a class='btn btn-call' href='sendMessageRequest.html?phoneId=" + String(phoneId) + "&messageId=" + String(mensagem.id) + ">Enviar</a>";
         messagesHtml += "</div>";
       }
     }
@@ -1427,10 +1416,11 @@ void setup() {
   server.on("/saveMessage", handleSaveMessage);
   server.on("/enviarSms.html", handleSendSms);
   server.on("/index.html", handleIndex);
+  server.on("/sendMessageRequest.html", handleSendSmsRequest);
+  server.on("/sendCall.html", handleSendCallRequest);
 
   server.begin();
   Serial.println("HTTP server started");
-  clearEEPROM();
 }
 
 void loop() {
