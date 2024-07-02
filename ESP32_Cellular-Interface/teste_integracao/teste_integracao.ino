@@ -663,6 +663,10 @@ void resetPhone(Telefone &telefone){
 void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
   Mensagem mensagem;
 
+  for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
+    listMessages[i] = -1;
+  }
+
   if (phoneId == 1){
     EEPROM.get(M1_ADDRS, mensagem);
     if (mensagem.id != 0) {
@@ -794,7 +798,7 @@ void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < MAX_PHONES; i++) {
     listPhones[i] = -1;
   }
 
@@ -1138,10 +1142,12 @@ void handleCadastraMessageGetPhones(){
 
     String options = "";
     for (int i = 0; i < MAX_PHONES; i++) {
+      if(listPhones[i] >= 0){
         readTelefone(listPhones[i], telefone);
         if (telefone.id > 0) {
             options += "<option value='" + String(telefone.numero) + "'>" + String(telefone.numero) + "</option>";
         }
+      }
     }
 
     String html = String(cadastraMessage_html);
@@ -1188,13 +1194,27 @@ void handleSendSms() {
   returnAllMemoryAddressMessages(phoneId, listMessages);
   Mensagem mensagem;
   String messagesHtml;
+  
+  for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
+    Serial.print("listMessages[");
+    Serial.print(i);
+    Serial.print("]: ");
+    Serial.println(listMessages[i]);
+  }
+
   for (int i = 0; i < 5; i++) {
-    readMensagem(listMessages[i], mensagem);
-    if (mensagem.id > 0) {
-      messagesHtml += "<div class=\"container-flex\">";
-      messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
-      messagesHtml += "<button class='btn btn-call'>Enviar</button>";
-      messagesHtml += "</div>";
+    if(listMessages[i] >= 0){
+      readMensagem(listMessages[i], mensagem);
+      Serial.println("MENSAGEM ENCONTRADA");
+      Serial.print("Id msg: ");Serial.println(mensagem.id);
+      Serial.print("Id nmbr: ");Serial.println(mensagem.idTelefone);
+      Serial.print("mensagem: ");Serial.println(mensagem.mensagem);
+      if (mensagem.id > 0) {
+        messagesHtml += "<div class=\"container-flex\">";
+        messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
+        messagesHtml += "<button class='btn btn-call'>Enviar</button>";
+        messagesHtml += "</div>";
+      }
     }
   }
 
@@ -1222,7 +1242,9 @@ void readTelefone(int address, Telefone& tel) {
 }
 
 void readMensagem(int address, Mensagem& msg) {
-  EEPROM.get(address, msg);
+  if(address >= 0){
+    EEPROM.get(address, msg);
+  }
 }
 
 void printTelefone(Telefone tel) {
@@ -1381,6 +1403,7 @@ void setup() {
 
   server.begin();
   Serial.println("HTTP server started");
+  clearEEPROM();
 }
 
 void loop() {
