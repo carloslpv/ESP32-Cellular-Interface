@@ -1368,6 +1368,33 @@ void handleSendSmsRequest() {
   }
 }
 
+void handleSendCallRequest() {
+  if (server.hasArg("phoneId")) {
+    int phoneId = server.arg("phoneId").toInt();
+    
+    Telefone telefone;
+    int phoneAddress;
+    
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+    
+    readTelefone(phoneAddress, telefone);
+    sendCall(telefone.numero);
+    
+    server.send(200, "text/html", "<html><body><h1>Chamada realizada com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  } else {
+    server.send(400, "text/html", "<html><body><h1>Parâmetros de solicitação ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+  }
+}
+
 void updateSerial() {
   delay(500);
   while (Serial.available()) {
