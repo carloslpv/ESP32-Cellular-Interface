@@ -1,92 +1,116 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <link rel='icon' href='data:,'>
+  <head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='icon' href='data:,'>
+    <style>
+      :root {
+        --background-color: #EEEEEE; 
+        --button-color: #658864;
+      }
+      body{
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0;
+        background-color: var(--background-color);
+      }
+      .formulario__campo { 
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+      .formulario__input { 
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+      }
+      .formulario {
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+      }
+      .btn {
+        max-width: 5rem;
+        max-height: 5rem;
+        min-width: 6rem;
+        min-height: 2rem;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary { 
+        background-color: var(--button-color);
+      }
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+      }
 
-  <style>
-    :root {
-      --background-color: #EEEEEE; 
-      --button-color: #658864;
-    }
+      .formulario__campo select {
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        font-size: 1rem;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
 
-    body{
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      margin: 0;
-      background-color: var(--background-color);
-    }
+      .formulario__campo select:focus {
+        outline: none;
+        border-color: var(--button-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
 
-    .formulario__campo { 
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .formulario__input { 
-      min-width: 25rem;
-      min-height: 2rem;
-      border-radius: 15px;
-    }
-
-    .formulario {
-      display: flex;
-      align-items: start;
-      flex-direction: column;
-    }
-
-    .btn {
-      max-width: 5rem;
-      max-height: 5rem;
-      min-width: 6rem;
-      min-height: 2rem;
-      border-radius: 16px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-primary { 
-      background-color: var(--button-color);
-    }
-
-    .card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      word-wrap: break-word;
-      background-color: #fff;
-      background-clip: border-box;
-      border: 1px solid rgba(0, 0, 0, 0.125);
-      border-radius: 1rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 2.5rem;
-    }
-
-  </style>
-</head>
-<body>
-  <form  class="formulario card" action='salvar_success.html' method='post'>
-    <h1>Cadastrar Número e Mensagem</h1>
-    <div class="formulario__campo">
-      <label for='phone'>Número de Telefone:</label><br>
-      <input class="formulario__input" type='text' id='phone' name='phone' value=''>
-    </div>
+      .formulario__campo select option {
+        padding: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <form  class="formulario card" action='/salvarPhone' method='post'>
+      <h1>Cadastrar Telefone</h1>
+      <div class="formulario__campo">
+        <label for='number'>Número de Telefone:</label><br>
+        <input class="formulario__input" type='text' id='number' name='number' value=''>
+      </div>
+      <br>
+      <div class="formulario__campo">
+        <select name="operator" required="required">
+          <option value="" disabled selected>Selecione uma operadora</option>
+          <option value="oi">Oi</option>
+          <option value="vivo">Vivo</option>
+          <option value="claro">Claro</option>
+          <option value="tim">Tim</option>
+        </select>
+      </div>
+      <br><br>
+      <input class="btn btn-primary" type='submit' value='Salvar'>
+    </form>
     <br>
-    <div class="formulario__campo">
-      <label for='message'>Mensagem:</label><br>
-      <textarea class="formulario__input" id='message' name='message'></textarea>
-    </div>
-    <br><br>
-    <input class="btn btn-primary" type='submit' value='Salvar'>
-  </form>
-  <br>
-  <a href='index.html'>Voltar</a>
-</body>
+    <a href='index.html'>Voltar</a>
+  </body>
+  <script>
+  </script>
 </html>
