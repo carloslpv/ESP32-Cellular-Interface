@@ -40,8 +40,8 @@
 #define MAX_MESSAGES_NMBR 5
 
 // Defina as credenciais Wi-Fi
-const char* ssid = "ESP32-Access-Point";
-const char* password = "123456789";
+const char* ssid = "ESP32-IOT";
+const char* password = "iot123";
 
 // Defina o servidor web na porta 80
 WebServer server(80);
@@ -1100,7 +1100,7 @@ void handleVisualizar() {
         divs += "<div id = telefone:" + String(i) + "\>" + "Número: " + String(telefone.numero) + "<br>" + "Operadora: " + String(telefone.operadora) +  "</div>";
         divs += "<div class=\"container-flex\">";
         divs += "<a class=\"btn btn-primary\" href=\"cadastro.html\">Editar</a>";
-        divs += "<button class=\"btn btn-danger\">Excluir</button>";
+        divs += "<a class=\"btn btn-danger\" href=delete.html?phoneId=" + String(telefone.id) + ">Excluir</a>";
         divs += "</div>";
         divs += "<div class=\"container-flex\">";
         divs += "<a class=\"btn btn-call\" href=sendCall.html?phoneId=" +String(telefone.id) + ">Ligar</a>";
@@ -1195,7 +1195,7 @@ void handleSendSms() {
   Mensagem mensagem;
   String messagesHtml;
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
     if(listMessages[i] >= 0){
       readMensagem(listMessages[i], mensagem);
       if (mensagem.id > 0) {
@@ -1236,21 +1236,32 @@ void readMensagem(int address, Mensagem& msg) {
   }
 }
 
-void printTelefone(Telefone tel) {
-  Serial.print("ID: ");
-  Serial.println(tel.id);
-  Serial.print("Número: ");
-  Serial.println(tel.numero);
-  Serial.print("Operadora: ");
-  Serial.println(tel.operadora);
+void printMensagem(int address) {
+  Mensagem mensagem;
+  readMensagem(address, mensagem);
+  Serial.print("Mensagem em ");
+  Serial.print(address);
+  Serial.print(": id = ");
+  Serial.print(mensagem.id);
+  Serial.print(", idTelefone = ");
+  Serial.print(mensagem.idTelefone);
+  Serial.print(", mensagem = ");
+  Serial.println(mensagem.mensagem);
 }
 
-void printMensagem(Mensagem msg) {
-  Serial.print("ID Telefone: ");
-  Serial.println(msg.idTelefone);
-  Serial.print("Mensagem: ");
-  Serial.println(msg.mensagem);
+void printTelefone(int address) {
+  Telefone telefone;
+  readTelefone(address, telefone);
+  Serial.print("Telefone em ");
+  Serial.print(address);
+  Serial.print(": id = ");
+  Serial.print(telefone.id);
+  Serial.print(", numero = ");
+  Serial.print(telefone.numero);
+  Serial.print(", operadora = ");
+  Serial.println(telefone.operadora);
 }
+
 
 void clearEEPROM() {
   for (int i = 0; i < EEPROM_SIZE; i++) {
@@ -1398,6 +1409,49 @@ void handleIndex(){
   server.send(200, "text/html", index_html);
 }
 
+void readMensagem(int address, Mensagem* mensagem) {
+  EEPROM.get(address, *mensagem);
+}
+
+void handleDelete() {
+  if (server.hasArg("phoneId")) {
+    int phoneId = server.arg("phoneId").toInt();
+    int listMessages[MAX_MESSAGES_NMBR];
+    returnAllMemoryAddressMessages(phoneId, listMessages);
+
+    for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
+      if (listMessages[i] >= 0) {
+        for (int j = 0; j < sizeof(Mensagem); j++) {
+          EEPROM.write(listMessages[i] + j, 0);
+        }
+        Serial.println("Mensagem deletada...");
+      }
+    }
+
+    int phoneAddress;
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+
+    for (int i = 0; i < sizeof(Telefone); i++) {
+      EEPROM.write(phoneAddress + i, 0);
+    }
+    Serial.println("Telefone deletado...");
+
+    EEPROM.commit();
+    server.send(200, "text/html", "<html><body><h1>Dados deletados com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  } else {
+    server.send(400, "text/html", "<html><body><h1>Argumento phoneId ausente</h1><a href='index.html'>Voltar</a></body></html>");
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(EEPROM_SIZE);
@@ -1418,6 +1472,7 @@ void setup() {
   server.on("/index.html", handleIndex);
   server.on("/sendMessageRequest.html", handleSendSmsRequest);
   server.on("/sendCall.html", handleSendCallRequest);
+  server.on("/delete.html", handleDelete);
 
   server.begin();
   Serial.println("HTTP server started");
