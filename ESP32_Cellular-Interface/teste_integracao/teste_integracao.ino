@@ -654,8 +654,14 @@ const char* enviarSms_html = R"=====(
 </html>
 )=====";
 
+void resetPhone(Telefone &telefone){
+  telefone.id = 0;
+  memset(telefone.numero, 0, sizeof(telefone.numero));
+  memset(telefone.operadora, 0, sizeof(telefone.operadora));
+}
+
 void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
-Mensagem mensagem;
+  Mensagem mensagem;
 
   if (phoneId == 1){
     EEPROM.get(M1_ADDRS, mensagem);
@@ -788,6 +794,10 @@ Mensagem mensagem;
 void returnAllMemoryAddressPhones(int* listPhones) {
   Telefone telefone;
 
+  for (int i = 0; i < 5; i++) {
+    listPhones[i] = -1;
+  }
+
   EEPROM.get(P1_ADDRS, telefone);
   if (telefone.id != 0) {
     listPhones[0] = P1_ADDRS;
@@ -808,7 +818,8 @@ void returnAllMemoryAddressPhones(int* listPhones) {
     listPhones[3] = P4_ADDRS;
   }
 
-  EEPROM.get(P5_ADDRS, telefone);
+  resetPhone(telefone);
+  Serial.println(telefone.id);
   if (telefone.id != 0) {
     listPhones[4] = P5_ADDRS;
   }
@@ -1072,25 +1083,26 @@ void handleCadastro() {
 }
 
 void handleVisualizar() {
-  DynamicJsonDocument doc(1024);
-  JsonArray array = doc.to<JsonArray>();
   int listPhones[MAX_PHONES];
   returnAllMemoryAddressPhones(listPhones);
+
   Telefone telefone;
 
   String divs = "";
   for (int i = 0; i < MAX_PHONES; i++) {
-    readTelefone(listPhones[i], telefone);
-    if (telefone.id > 0) {
-      divs += "<div id = telefone:" + String(i) + "\>" + "Número: " + String(telefone.numero) + "<br>" + "Operadora: " + String(telefone.operadora) +  "</div>";
-      divs += "<div class=\"container-flex\">";
-      divs += "<a class=\"btn btn-primary\" href=\"cadastro.html\">Editar</a>";
-      divs += "<button class=\"btn btn-danger\">Excluir</button>";
-      divs += "</div>";
-      divs += "<div class=\"container-flex\">";
-      divs += "<button class=\"btn btn-call\">Ligar</button>";
-      divs += "<a class='btn btn-sms' href='enviarSms.html?phoneId=" + String(telefone.id) + "'>SMS</a>";
-      divs += "</div>";
+    if(listPhones[i] >= 0){
+      readTelefone(listPhones[i], telefone);
+      if (telefone.id > 0) {
+        divs += "<div id = telefone:" + String(i) + "\>" + "Número: " + String(telefone.numero) + "<br>" + "Operadora: " + String(telefone.operadora) +  "</div>";
+        divs += "<div class=\"container-flex\">";
+        divs += "<a class=\"btn btn-primary\" href=\"cadastro.html\">Editar</a>";
+        divs += "<button class=\"btn btn-danger\">Excluir</button>";
+        divs += "</div>";
+        divs += "<div class=\"container-flex\">";
+        divs += "<button class=\"btn btn-call\">Ligar</button>";
+        divs += "<a class='btn btn-sms' href='enviarSms.html?phoneId=" + String(telefone.id) + "'>SMS</a>";
+        divs += "</div><br>";
+      }
     }
   }
   String html = String(visualizar_html);
@@ -1111,7 +1123,6 @@ void handleSavePhone() {
       server.send(400, "text/html", "<html><body><h1>Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir</h1><a href='index.html'>Voltar</a></body></html>");
     }
     Telefone telefone = buildTelephone(id, number, operatorName);
-
     writeTelefone(memoryAddress, telefone);
     Serial.println("Telefone cadastrado com sucesso!");
     server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
@@ -1161,10 +1172,6 @@ void handleSaveMessage(){
       Mensagem mensagem = buildMensagem(messageIndex, phoneId, message);
       writeMensagem(messageMemoryAddress, mensagem);
       Serial.println("Mensagem cadastrada com sucesso...");
-      Serial.print("Endereco: ");Serial.println(messageMemoryAddress);
-      Serial.println(mensagem.id);
-      Serial.println(mensagem.idTelefone);
-      Serial.println(mensagem.mensagem);
       server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
     } else if(messageIndex < 0){
       server.send(400, "text/html", "<html><body><h1>Limite de mensagens excedido, favor excluir um cadastro</h1><a href='index.html'>Voltar</a></body></html>");
@@ -1209,7 +1216,9 @@ void writeMensagem(int address, Mensagem msg) {
 }
 
 void readTelefone(int address, Telefone& tel) {
-  EEPROM.get(address, tel);
+  if(address >= 0){
+    EEPROM.get(address, tel);
+  }
 }
 
 void readMensagem(int address, Mensagem& msg) {
