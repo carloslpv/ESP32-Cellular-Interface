@@ -1281,6 +1281,62 @@ void sendCall(String number) {
   updateSerial();
 }
 
+void sendSms(String number, String message) {
+  Serial.println("AT+CMGF=1\n");
+  updateSerial();
+  String comandoSms = "AT+CMGS=\"+55" + String(number) + "\"";
+  Serial.println(comandoSms);
+  updateSerial();
+  Serial.println(message);
+  updateSerial();
+  Serial.write(26);
+  updateSerial();
+  
+}
+
+void handleSendSmsRequest() {
+  if (server.hasArg("phoneId") && server.hasArg("messageId")) {
+    int phoneId = server.arg("phoneId").toInt();
+    int messageId = server.arg("messageId").toInt();
+    
+    Telefone telefone;
+    Mensagem mensagem;
+    int phoneAddress;
+    int messageAddress;
+    
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+    
+    readTelefone(phoneAddress, telefone);
+    
+    switch (messageId) {
+      case 1: messageAddress = (phoneId == 1) ? M1_ADDRS : (phoneId == 2) ? M6_ADDRS : (phoneId == 3) ? M11_ADDRS : (phoneId == 4) ? M16_ADDRS : M21_ADDRS; break;
+      case 2: messageAddress = (phoneId == 1) ? M2_ADDRS : (phoneId == 2) ? M7_ADDRS : (phoneId == 3) ? M12_ADDRS : (phoneId == 4) ? M17_ADDRS : M22_ADDRS; break;
+      case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
+      case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
+      case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+    
+    readMensagem(messageAddress, mensagem);
+    sendSms(telefone.numero, mensagem.mensagem);
+    
+    server.send(200, "text/html", "<html><body><h1>SMS enviado com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  } else {
+    server.send(400, "text/html", "<html><body><h1>Parâmetros de solicitação ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+  }
+}
+
 void updateSerial() {
   delay(500);
   while (Serial.available()) {
@@ -1316,7 +1372,6 @@ void setup() {
 
   server.begin();
   Serial.println("HTTP server started");
-  clearEEPROM();
 }
 
 void loop() {
