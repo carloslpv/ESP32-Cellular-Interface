@@ -4,37 +4,37 @@
 #include <ArduinoJson.h>
 
 // Variáveis para armazenar dados
-#define EEPROM_SIZE 1000
+#define EEPROM_SIZE 1200
 #define P1_ADDRS 0
-#define P2_ADDRS 18
-#define P3_ADDRS 36
-#define P4_ADDRS 61
-#define P5_ADDRS 79
-#define M1_ADDRS 97
-#define M2_ADDRS 131
-#define M3_ADDRS 165
-#define M4_ADDRS 199
-#define M5_ADDRS 233
-#define M6_ADDRS 267
-#define M7_ADDRS 301
-#define M8_ADDRS 335
-#define M9_ADDRS 369
-#define M10_ADDRS 403
-#define M11_ADDRS 437
-#define M12_ADDRS 471
-#define M13_ADDRS 505
-#define M14_ADDRS 539
-#define M15_ADDRS 573
-#define M16_ADDRS 607
-#define M17_ADDRS 641
-#define M18_ADDRS 675
-#define M19_ADDRS 709
-#define M20_ADDRS 743
-#define M21_ADDRS 777
-#define M22_ADDRS 811
-#define M23_ADDRS 845
-#define M24_ADDRS 879
-#define M25_ADDRS 913
+#define P2_ADDRS 21
+#define P3_ADDRS 42
+#define P4_ADDRS 63
+#define P5_ADDRS 84
+#define M1_ADDRS 105
+#define M2_ADDRS 146
+#define M3_ADDRS 187
+#define M4_ADDRS 228
+#define M5_ADDRS 269
+#define M6_ADDRS 310
+#define M7_ADDRS 351
+#define M8_ADDRS 392
+#define M9_ADDRS 433
+#define M10_ADDRS 474
+#define M11_ADDRS 515
+#define M12_ADDRS 556
+#define M13_ADDRS 597
+#define M14_ADDRS 638
+#define M15_ADDRS 679
+#define M16_ADDRS 720
+#define M17_ADDRS 761
+#define M18_ADDRS 802
+#define M19_ADDRS 843
+#define M20_ADDRS 884
+#define M21_ADDRS 925
+#define M22_ADDRS 966
+#define M23_ADDRS 1007
+#define M24_ADDRS 1048
+#define M25_ADDRS 1089
 #define MAX_PHONES 5
 #define MAX_MESSAGES 25
 #define MAX_MESSAGES_NMBR 5
@@ -644,18 +644,6 @@ const char* enviarSms_html = R"=====(
           <h1>Enviar Mensagem</h1>
           <div class="container-flex-column">
             <p><strong>Contato</strong></p>
-            <div class="container-flex">
-                <p class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
-                <button class="btn btn-call">Enviar</button>
-            </div>
-          </div>
-          <div class="container-flex-column">
-            <div class="container-flex">
-                <p class="paragrafo">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas id eleifend velit, eu hendrerit mi.</p>
-                <button class="btn btn-call">Enviar</button>
-            </div>
-          </div>
-          <div class="container-flex-column">
             $MESSAGES$
           </div>
           <br>
@@ -1289,7 +1277,6 @@ void sendCall(String number) {
 
 
   String comando = "ATD0" + String(telefone.operadora) + String(telefone.numero) + ";\n";
-  Serial.println("testechamada");
   Serial.println(comando);
   updateSerial();
 }
