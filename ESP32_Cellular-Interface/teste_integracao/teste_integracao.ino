@@ -239,7 +239,7 @@ const char* cadastro_html = R"=====(
       <h1>Cadastrar Telefone</h1>
       <div class="formulario__campo">
         <label for='number'>Número de Telefone:</label><br>
-        <input class="formulario__input" type='text' id='number' name='number' value=''>
+        <input class="formulario__input" type='text' maxlength="11" id='number' name='number' value=''>
       </div>
       <br>
       <div class="formulario__campo">
