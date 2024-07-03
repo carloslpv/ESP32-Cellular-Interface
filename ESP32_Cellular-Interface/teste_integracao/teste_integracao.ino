@@ -773,13 +773,131 @@ const char* alteraTelefone_html_template = R"=====(
 </html>
 )=====";
 
+const char* alteraMessage_html = R"=====(
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='icon' href='data:,'>
+  <style>
+    :root {
+      --background-color: #EEEEEE; 
+      --button-color: #658864;
+    }
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 0;
+      background-color: var(--background-color);
+    }
+    .formulario__campo { 
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .formulario__input { 
+      min-width: 25rem;
+      min-height: 2rem;
+      border-radius: 15px;
+    }
+    .formulario {
+      display: flex;
+      align-items: start;
+      flex-direction: column;
+    }
+    .text-area { 
+        min-width: 25vw;
+        min-height: 10vh;
+        padding: .5rem;
+    }
+    .select {
+        background-color: #fff;
+        
+    }
+    .w-25vw {
+        min-width: 25vw;
+    }
+    .btn {
+      max-width: 5rem;
+      max-height: 5rem;
+      min-width: 6rem;
+      min-height: 2rem;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary { 
+      background-color: var(--button-color);
+    }
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      word-wrap: break-word;
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+    }
+    .formulario__campo select {
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        font-size: 1rem;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
 
+      .formulario__campo select:focus {
+        outline: none;
+        border-color: var(--button-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
 
-void resetPhone(Telefone &telefone){
-  telefone.id = 0;
-  memset(telefone.numero, 0, sizeof(telefone.numero));
-  memset(telefone.operadora, 0, sizeof(telefone.operadora));
-}
+      .formulario__campo select option {
+        padding: 0.5rem;
+  </style>
+</head>
+<body>
+  <form  class="formulario card" action='/submitAlterMessage' method='post'>
+    <h1>Alterar mensagem</h1>
+    <div class="formulario__campo">
+      <label for='phone'>Número de Telefone:</label><br>
+      <input type="hidden" id='phoneId' name='phoneId' value='$IDPHONE$'>
+      <select class="formulario__input select w-25vw" name="phone" id="phone">
+        $OPTIONS$
+      </select>
+    </div>
+    <br>
+    <div class="formulario__campo">
+      <label for='message'>Mensagem:</label><br>
+      <textarea maxlength="30" class="formulario__input text-area" id='message' name='message'>$MESSAGE$</textarea>
+      <input type="hidden" id='messageId' name='messageId' value='$MESSAGEID$'>
+    </div>
+    <br><br>
+    <input class="btn btn-primary" type='submit' value='Salvar'>
+  </form>
+  <br>
+  <a href='index.html'>Voltar</a>
+</body>
+</html>
+)=====";
 
 void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
   Mensagem mensagem;
@@ -1214,7 +1332,6 @@ void handleVisualizar() {
 
   String divs = "";
   for (int i = 0; i < MAX_PHONES; i++) {
-    Serial.println(String(i));
     if(listPhones[i] >= 0){
       readTelefone(listPhones[i], telefone);
       if (telefone.id > 0) {
@@ -1314,8 +1431,21 @@ void handleSendSms() {
 
   returnAllMemoryAddressMessages(phoneId, listMessages);
   Mensagem mensagem;
+  Telefone telefone;
   String messagesHtml;
 
+  int phoneAddress;
+  switch (phoneId) {
+    case 1: phoneAddress = P1_ADDRS; break;
+    case 2: phoneAddress = P2_ADDRS; break;
+    case 3: phoneAddress = P3_ADDRS; break;
+    case 4: phoneAddress = P4_ADDRS; break;
+    case 5: phoneAddress = P5_ADDRS; break;
+    default: 
+      server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+      return;
+  }
+  readTelefone(phoneAddress,telefone);
   for (int i = 0; i < MAX_MESSAGES_NMBR; i++) {
     if(listMessages[i] >= 0){
       readMensagem(listMessages[i], mensagem);
@@ -1323,6 +1453,7 @@ void handleSendSms() {
         messagesHtml += "<div class=\"container-flex\">";
         messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
         messagesHtml += "<a class='btn btn-call' href='sendMessageRequest.html?phoneId=" + String(phoneId) + "&messageId=" + String(mensagem.id) + "'>Enviar</a>";
+        messagesHtml += "<a class='btn btn-call' href='alterMessage.html?phoneId=" + String(phoneId) + "&number=" + String(telefone.numero) + "&messageId=" + String(mensagem.id) + "'>Alterar</a>";
         messagesHtml += "</div>";
       }
     }
@@ -1634,6 +1765,72 @@ void handleSaveAlterPhone() {
 
 }
 
+void handleAlterMessage(){
+  if (server.hasArg("phoneId") && server.hasArg("messageId")) {
+    int messageId = server.arg("messageId").toInt();
+    int phoneId = server.arg("phoneId").toInt();
+    
+    int phoneAddress;
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+
+    int messageAddress;
+    switch (messageId) {
+      case 1: messageAddress = (phoneId == 1) ? M1_ADDRS : (phoneId == 2) ? M6_ADDRS : (phoneId == 3) ? M11_ADDRS : (phoneId == 4) ? M16_ADDRS : M21_ADDRS; break;
+      case 2: messageAddress = (phoneId == 1) ? M2_ADDRS : (phoneId == 2) ? M7_ADDRS : (phoneId == 3) ? M12_ADDRS : (phoneId == 4) ? M17_ADDRS : M22_ADDRS; break;
+      case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
+      case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
+      case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+
+    Telefone telefone;
+    Mensagem mensagem;
+    readTelefone(phoneAddress, telefone);  
+    readMensagem(messageAddress, mensagem);
+    String options = "";
+    options += "<option value='" + String(telefone.numero) + "'>" + String(telefone.numero) + "</option>";
+
+    String html = String(alteraMessage_html);
+    html.replace("$IDPHONE$", String(phoneId));
+    html.replace("$OPTIONS$", options);
+    html.replace("$MESSAGE$", mensagem.mensagem);
+    html.replace("$MESSAGEID$", String(mensagem.id));
+    server.send(200, "text/html", html);
+  }
+  server.send(400, "text/html", "<html><body><h1>Argumentos number e/ou messageId ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+}
+
+void handleSaveAlterMessage(){
+  String message = server.arg("message");
+  int messageId = server.arg("messageId").toInt();
+  int phoneId = server.arg("phoneId").toInt();
+
+  int messageAddress;
+  switch (messageId) {
+    case 1: messageAddress = (phoneId == 1) ? M1_ADDRS : (phoneId == 2) ? M6_ADDRS : (phoneId == 3) ? M11_ADDRS : (phoneId == 4) ? M16_ADDRS : M21_ADDRS; break;
+    case 2: messageAddress = (phoneId == 1) ? M2_ADDRS : (phoneId == 2) ? M7_ADDRS : (phoneId == 3) ? M12_ADDRS : (phoneId == 4) ? M17_ADDRS : M22_ADDRS; break;
+    case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
+    case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
+    case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
+    default: 
+      server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
+      return;
+  }
+  Mensagem mensagem = buildMensagem(messageId, phoneId, message);
+  writeMensagem(messageAddress, mensagem);
+  server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+}
 
 void setup() {
   Serial.begin(115200);
@@ -1658,6 +1855,9 @@ void setup() {
   server.on("/delete.html", handleDelete);
   server.on("/alteraTelefone.html", handleAlteraTelefone);
   server.on("/alteraPhone", handleSaveAlterPhone);
+  server.on("/alterMessage.html", handleAlterMessage);
+  server.on("/submitAlterMessage", handleSaveAlterMessage);
+
 
   server.begin();
   Serial.println("HTTP server started");
