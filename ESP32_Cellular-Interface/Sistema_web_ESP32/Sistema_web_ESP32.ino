@@ -899,6 +899,72 @@ const char* alteraMessage_html = R"=====(
 </html>
 )=====";
 
+const char* retorno_html = R"=====(
+  <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='icon' href='data:,'>
+  <style>
+    :root {
+      --background-color: #EEEEEE; 
+      --button-color: #658864;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: var(--background-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      text-align: center;
+      margin: 0;
+    }
+
+    .box {
+      display: flex;
+      flex-direction: column;
+      border: 1px, solid, #000;
+      padding: 5rem;
+      list-style: none;
+      justify-content: space-evenly;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      word-wrap: break-word;
+      background-color: #fff;
+      background-clip: border-box;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+    
+  <h1>Retorno</h1>
+  <div class="card box">
+    <p>$RETURNMSG$</p>
+  </div>
+  <br>
+  <a href='index.html'>Voltar</a>
+</body>
+</html>
+)====="; 
+
+String msgReturn(String mensagemRetorno, String html){
+  html.replace("$RETURNMSG$", mensagemRetorno);
+  return html;
+}
+
 void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
   Mensagem mensagem;
 
@@ -1362,14 +1428,17 @@ void handleSavePhone() {
     int memoryAddress = checkFreePhoneMemoryAddress();
     int id = checkPhoneIndexWithAddress(memoryAddress);
     if (id < 0) {
-      server.send(400, "text/html", "<html><body><h1>Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir</h1><a href='index.html'>Voltar</a></body></html>");
+      String html = msgReturn("Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir", retorno_html);
+      server.send(400, "text/html", html);
     }
     Telefone telefone = buildTelephone(id, number, operatorName);
     writeTelefone(memoryAddress, telefone);
     Serial.println("Telefone cadastrado com sucesso!");
-    server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Dados cadastrados com sucesso", retorno_html);
+    server.send(200, "text/html", html);
   } else {
-    server.send(400, "text/html", "<html><body><h1>Erro ao salvar os dados</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Erro ao salvar os dados", retorno_html);
+    server.send(400, "text/html", html);
   }
 }
 
@@ -1416,12 +1485,15 @@ void handleSaveMessage(){
       Mensagem mensagem = buildMensagem(messageIndex, phoneId, message);
       writeMensagem(messageMemoryAddress, mensagem);
       Serial.println("Mensagem cadastrada com sucesso...");
-      server.send(200, "text/html", "<html><body><h1>Dados Salvos</h1><a href='index.html'>Voltar</a></body></html>");
+      String html = msgReturn("Mensagem cadastrada com sucesso", retorno_html);
+      server.send(200, "text/html", html);
     } else if(messageIndex < 0){
-      server.send(400, "text/html", "<html><body><h1>Limite de mensagens excedido, favor excluir um cadastro</h1><a href='index.html'>Voltar</a></body></html>");
+      String html = msgReturn("Limite de mensagens excedido, favor excluir um cadastro", retorno_html);
+      server.send(400, "text/html", html);
     }
   }
-  server.send(400, "text/html", "<html><body><h1>Erro ao salvar a mensagem</h1><a href='index.html'>Voltar</a></body></html>");
+  String html = msgReturn("Erro ao salvar a mensagem", retorno_html);
+  server.send(400, "text/html", html);
 }
 
 void handleSendSms() {
@@ -1442,7 +1514,8 @@ void handleSendSms() {
     case 4: phoneAddress = P4_ADDRS; break;
     case 5: phoneAddress = P5_ADDRS; break;
     default: 
-      server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+      String html = msgReturn("ID do telefone inválido", retorno_html);
+      server.send(400, "text/html", html);
       return;
   }
   readTelefone(phoneAddress,telefone);
@@ -1593,7 +1666,8 @@ void handleSendSmsRequest() {
       case 4: phoneAddress = P4_ADDRS; break;
       case 5: phoneAddress = P5_ADDRS; break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+          String html = msgReturn("ID do telefone inválido", retorno_html);
+          server.send(400, "text/html", html);
         return;
     }
     
@@ -1605,17 +1679,20 @@ void handleSendSmsRequest() {
       case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
       case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
       case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
-      default: 
-        server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
+      default:
+        String html = msgReturn("ID da mensagem inválido", retorno_html);
+        server.send(400, "text/html", html); 
         return;
     }
     
     readMensagem(messageAddress, mensagem);
     sendSms(telefone.numero, mensagem.mensagem);
     
-    server.send(200, "text/html", "<html><body><h1>SMS enviado com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("SMS enviado com sucesso", retorno_html);
+    server.send(200, "text/html", html); 
   } else {
-    server.send(400, "text/html", "<html><body><h1>Parâmetros de solicitação ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Erro ao enviar mensagem, parâmetros de solicitação ausentes", retorno_html);
+    server.send(400, "text/html", html);
   }
 }
 
@@ -1633,26 +1710,29 @@ void handleSendCallRequest() {
       case 4: phoneAddress = P4_ADDRS; break;
       case 5: phoneAddress = P5_ADDRS; break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        String html = msgReturn("ID da mensagem inválido", retorno_html);
+        server.send(400, "text/html", html); 
         return;
     }
     
     readTelefone(phoneAddress, telefone);
     sendCall(telefone.numero);
     
-    server.send(200, "text/html", "<html><body><h1>Chamada realizada com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Chamada realizada com sucesso", retorno_html);
+    server.send(200, "text/html", html);
   } else {
-    server.send(400, "text/html", "<html><body><h1>Parâmetros de solicitação ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Erro ao realizar ligação, parâmetros de solicitação ausentes", retorno_html);
+    server.send(400, "text/html", html);
   }
 }
 
 void updateSerial() {
   delay(500);
   while (Serial.available()) {
-    Serial2.write(Serial.read());  //Forward what Serial received to Software Serial Port
+    Serial2.write(Serial.read());
   }
   while (Serial2.available()) {
-    Serial.write(Serial2.read());  //Forward what Software Serial received to Serial Port
+    Serial.write(Serial2.read()); 
   }
 }
 
@@ -1687,7 +1767,8 @@ void handleDelete() {
       case 4: phoneAddress = P4_ADDRS; break;
       case 5: phoneAddress = P5_ADDRS; break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        String html = msgReturn("ID do telefone inválido", retorno_html);
+        server.send(400, "text/html", html);
         return;
     }
 
@@ -1697,9 +1778,11 @@ void handleDelete() {
     Serial.println("Telefone deletado...");
 
     EEPROM.commit();
-    server.send(200, "text/html", "<html><body><h1>Dados deletados com sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Dados deletados com sucesso", retorno_html);
+    server.send(200, "text/html", html);
   } else {
-    server.send(400, "text/html", "<html><body><h1>Argumento phoneId ausente</h1><a href='index.html'>Voltar</a></body></html>");
+    String html = msgReturn("Erro ao deletar os dados, parâmetros de solicitação ausentes", retorno_html);
+    server.send(400, "text/html", html);
   }
 }
 
@@ -1710,7 +1793,7 @@ void handleAlteraTelefone() {
     String phoneId = server.arg("phoneId");
     String html = String(alteraTelefone_html_template);
 
-    const char* nameOperadora; // Ponteiro para const char
+    const char* nameOperadora; 
 
     switch (operadora) {
       case 14: 
@@ -1726,7 +1809,8 @@ void handleAlteraTelefone() {
         nameOperadora = "tim"; 
         break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID da operadora inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        String html = msgReturn("ID da operadora inválido", retorno_html);
+        server.send(400, "text/html", html);
         return;
     }
 
@@ -1737,32 +1821,38 @@ void handleAlteraTelefone() {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/html", html);
   } 
-  server.send(400, "text/html", "<html><body><h1>Argumentos phoneId, number e operator ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+  String html = msgReturn("Erro ao carregar a tela, parâmetros de solicitação ausentes", retorno_html);
+  server.send(400, "text/html", html);
 }
 
 void handleSaveAlterPhone() {
-  String number = server.arg("number");
-  String operadora = server.arg("operator");
-  int phoneId = server.arg("phoneId").toInt();
-    
-  int phoneAddress;
-  switch (phoneId) {
-    case 1: phoneAddress = P1_ADDRS; break;
-    case 2: phoneAddress = P2_ADDRS; break;
-    case 3: phoneAddress = P3_ADDRS; break;
-    case 4: phoneAddress = P4_ADDRS; break;
-    case 5: phoneAddress = P5_ADDRS; break;
-    default: 
-      server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
-      return;
-  }
-  
-  Telefone telefone = buildTelephone(phoneId, number, operadora);
-  writeTelefone(phoneAddress, telefone);
-  Serial.println("Cadastro de telefone alterado...");
-  
-  server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  if (server.hasArg("number") && server.hasArg("operator") && server.hasArg("phoneId")) {
 
+    String number = server.arg("number");
+    String operadora = server.arg("operator");
+    int phoneId = server.arg("phoneId").toInt();
+      
+    int phoneAddress;
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        String html = msgReturn("ID do telefone inválido", retorno_html);
+        server.send(400, "text/html", html);
+        return;
+    }
+    
+    Telefone telefone = buildTelephone(phoneId, number, operadora);
+    writeTelefone(phoneAddress, telefone);
+    Serial.println("Cadastro de telefone alterado...");
+    String html = msgReturn("Cadastro de telefone alterado com sucesso", retorno_html);
+    server.send(200, "text/html", html);
+  }
+  String html = msgReturn("Erro ao alterar cadastro do telefone, parâmetros de solicitação ausentes", retorno_html);
+  server.send(400, "text/html", html);
 }
 
 void handleAlterMessage(){
@@ -1778,7 +1868,8 @@ void handleAlterMessage(){
       case 4: phoneAddress = P4_ADDRS; break;
       case 5: phoneAddress = P5_ADDRS; break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        String html = msgReturn("ID do telefone inválido", retorno_html);
+        server.send(400, "text/html", html);
         return;
     }
 
@@ -1790,7 +1881,8 @@ void handleAlterMessage(){
       case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
       case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
       default: 
-        server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        String html = msgReturn("ID da mensagem inválido", retorno_html);
+        server.send(400, "text/html", html);
         return;
     }
 
@@ -1808,28 +1900,35 @@ void handleAlterMessage(){
     html.replace("$MESSAGEID$", String(mensagem.id));
     server.send(200, "text/html", html);
   }
-  server.send(400, "text/html", "<html><body><h1>Argumentos number e/ou messageId ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+  String html = msgReturn("Erro ao carregar a tela, parâmetros de solicitação ausentes", retorno_html);
+  server.send(400, "text/html", html);
 }
 
 void handleSaveAlterMessage(){
-  String message = server.arg("message");
-  int messageId = server.arg("messageId").toInt();
-  int phoneId = server.arg("phoneId").toInt();
+  if (server.hasArg("message") && server.hasArg("messageId") && server.hasArg("phoneId")) {
+    String message = server.arg("message");
+    int messageId = server.arg("messageId").toInt();
+    int phoneId = server.arg("phoneId").toInt();
 
-  int messageAddress;
-  switch (messageId) {
-    case 1: messageAddress = (phoneId == 1) ? M1_ADDRS : (phoneId == 2) ? M6_ADDRS : (phoneId == 3) ? M11_ADDRS : (phoneId == 4) ? M16_ADDRS : M21_ADDRS; break;
-    case 2: messageAddress = (phoneId == 1) ? M2_ADDRS : (phoneId == 2) ? M7_ADDRS : (phoneId == 3) ? M12_ADDRS : (phoneId == 4) ? M17_ADDRS : M22_ADDRS; break;
-    case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
-    case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
-    case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
-    default: 
-      server.send(400, "text/html", "<html><body><h1>ID da mensagem inválido</h1><a href='index.html'>Voltar</a></body></html>");
-      return;
+    int messageAddress;
+    switch (messageId) {
+      case 1: messageAddress = (phoneId == 1) ? M1_ADDRS : (phoneId == 2) ? M6_ADDRS : (phoneId == 3) ? M11_ADDRS : (phoneId == 4) ? M16_ADDRS : M21_ADDRS; break;
+      case 2: messageAddress = (phoneId == 1) ? M2_ADDRS : (phoneId == 2) ? M7_ADDRS : (phoneId == 3) ? M12_ADDRS : (phoneId == 4) ? M17_ADDRS : M22_ADDRS; break;
+      case 3: messageAddress = (phoneId == 1) ? M3_ADDRS : (phoneId == 2) ? M8_ADDRS : (phoneId == 3) ? M13_ADDRS : (phoneId == 4) ? M18_ADDRS : M23_ADDRS; break;
+      case 4: messageAddress = (phoneId == 1) ? M4_ADDRS : (phoneId == 2) ? M9_ADDRS : (phoneId == 3) ? M14_ADDRS : (phoneId == 4) ? M19_ADDRS : M24_ADDRS; break;
+      case 5: messageAddress = (phoneId == 1) ? M5_ADDRS : (phoneId == 2) ? M10_ADDRS : (phoneId == 3) ? M15_ADDRS : (phoneId == 4) ? M20_ADDRS : M25_ADDRS; break;
+      default: 
+        String html = msgReturn("ID da mensagem inválido", retorno_html);
+        server.send(400, "text/html", html);
+        return;
+    }
+    Mensagem mensagem = buildMensagem(messageId, phoneId, message);
+    writeMensagem(messageAddress, mensagem);
+    String html = msgReturn("Cadastro de mensagem alterado com sucesso", retorno_html);
+    server.send(200, "text/html", html);
   }
-  Mensagem mensagem = buildMensagem(messageId, phoneId, message);
-  writeMensagem(messageAddress, mensagem);
-  server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  String html = msgReturn("Erro ao realizar a alteração do cadastro de mensagem, parâmetros de solicitação ausentes", retorno_html);
+  server.send(400, "text/html", html);
 }
 
 void setup() {
