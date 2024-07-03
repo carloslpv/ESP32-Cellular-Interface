@@ -1614,13 +1614,6 @@ void handleSaveAlterPhone() {
     String number = server.arg("number");
     String operadora = server.arg("operator");
     int phoneId = server.arg("phoneId").toInt();
-    
-    Serial.print("ID do telefone recebido: ");
-    Serial.println(phoneId);
-    Serial.print("Número recebido: ");
-    Serial.println(number);
-    Serial.print("Operadora recebida: ");
-    Serial.println(operadora);
       
     int phoneAddress;
     switch (phoneId) {
@@ -1630,16 +1623,13 @@ void handleSaveAlterPhone() {
       case 4: phoneAddress = P4_ADDRS; break;
       case 5: phoneAddress = P5_ADDRS; break;
       default: 
-        Serial.println("ID do telefone inválido recebido");
         server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
         return;
     }
     
-    Serial.print("Escrevendo dados do telefone no endereço: ");
-    Serial.println(phoneAddress);
-    
     Telefone telefone = buildTelephone(phoneId, number, operadora);
     writeTelefone(phoneAddress, telefone);
+    Serial.println("Cadastro de telefone alterado...");
     
     server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
   /*}
