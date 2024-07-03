@@ -136,7 +136,6 @@ const char* index_html = R"=====(
     <ul class="card box">
       <li class="item"><a class="link__grande" href='cadastro.html'>Cadastrar Número</a></li>
       <li class="item"><a class="link__grande" href='visualizar.html'>Visualizar Telefones Cadastrados</a></li>
-      <li class="item"><a class="link__grande" href='cadastro.html'>Alterar Cadastros</a></li>
       <li class="item"><a class="link__grande" href='cadastraMessage.html'>Cadastrar Mensagem</a></li>
     </ul>
   </body>
@@ -654,6 +653,128 @@ const char* enviarSms_html = R"=====(
 </html>
 )=====";
 
+const char* alteraTelefone_html_template = R"=====(
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='icon' href='data:,'>
+    <style>
+      :root {
+        --background-color: #EEEEEE; 
+        --button-color: #658864;
+      }
+      body{
+        font-family: Arial, Helvetica, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0;
+        background-color: var(--background-color);
+      }
+      .formulario__campo { 
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+      .formulario__input { 
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+      }
+      .formulario {
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+      }
+      .btn {
+        max-width: 5rem;
+        max-height: 5rem;
+        min-width: 6rem;
+        min-height: 2rem;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary { 
+        background-color: var(--button-color);
+      }
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+      }
+
+      .formulario__campo select {
+        min-width: 25rem;
+        min-height: 2rem;
+        border-radius: 15px;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        font-size: 1rem;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+
+      .formulario__campo select:focus {
+        outline: none;
+        border-color: var(--button-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
+
+      .formulario__campo select option {
+        padding: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <form class="formulario card" action='/alteraPhone' method='post'>
+      <h1>Alterar Cadastro de Telefone</h1>
+      <div class="formulario__campo">
+        <label for='number'>Número de Telefone:</label><br>
+        <input type="hidden" id='phoneId' name='phoneId' value='$IDPHONE$'>
+        <input class="formulario__input" type='text' maxlength="11" id='number' name='number' value='$NUMBER$'>
+      </div>
+      <br>
+      <div class="formulario__campo">
+        <select id="operator" name="operator" required="required">
+          <option value="oi">Oi</option>
+          <option value="vivo">Vivo</option>
+          <option value="claro">Claro</option>
+          <option value="tim">Tim</option>
+        </select>
+      </div>
+      <br><br>
+      <input class="btn btn-primary" type='submit' value='Salvar'>
+    </form>
+    <br>
+    <a href='index.html'>Voltar</a>
+  </body>
+  <script>
+   document.getElementById('operator').value = '$OPERADORA$';
+  </script>
+</html>
+)=====";
+
+
+
 void resetPhone(Telefone &telefone){
   telefone.id = 0;
   memset(telefone.numero, 0, sizeof(telefone.numero));
@@ -1099,7 +1220,7 @@ void handleVisualizar() {
       if (telefone.id > 0) {
         divs += "<div id = telefone:" + String(i) + "\>" + "Número: " + String(telefone.numero) + "<br>" + "Operadora: " + String(telefone.operadora) +  "</div>";
         divs += "<div class=\"container-flex\">";
-        divs += "<a class=\"btn btn-primary\" href=\"cadastro.html\">Editar</a>";
+        divs += "<a class=\"btn btn-primary\" href=\"alteraTelefone.html?phoneId=" + String(telefone.id) + "&number=" + String(telefone.numero) + "&operator=" + String(telefone.operadora) + "\">Editar</a>";
         divs += "<a class=\"btn btn-danger\" href=delete.html?phoneId=" + String(telefone.id) + ">Excluir</a>";
         divs += "</div>";
         divs += "<div class=\"container-flex\">";
@@ -1451,6 +1572,82 @@ void handleDelete() {
   }
 }
 
+void handleAlteraTelefone() {
+  if (server.hasArg("phoneId") && server.hasArg("number") && server.hasArg("operator")) {
+    String number = server.arg("number");
+    int operadora = server.arg("operator").toInt();
+    String phoneId = server.arg("phoneId");
+    String html = String(alteraTelefone_html_template);
+
+    const char* nameOperadora; // Ponteiro para const char
+
+    switch (operadora) {
+      case 14: 
+        nameOperadora = "oi"; 
+        break;
+      case 15: 
+        nameOperadora = "vivo"; 
+        break;
+      case 21: 
+        nameOperadora = "claro"; 
+        break;
+      case 41: 
+        nameOperadora = "tim"; 
+        break;
+      default: 
+        server.send(400, "text/html", "<html><body><h1>ID da operadora inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+
+    html.replace("$IDPHONE$", phoneId);
+    html.replace("$NUMBER$", number);
+    html.replace("$OPERADORA$", String(nameOperadora));
+
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/html", html);
+  } 
+  server.send(400, "text/html", "<html><body><h1>Argumentos phoneId, number e operator ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+}
+
+void handleSaveAlterPhone() {
+  //if (server.hasArg("phoneId") && server.hasArg("number") && server.hasArg("operator")) {
+    String number = server.arg("number");
+    String operadora = server.arg("operator");
+    int phoneId = server.arg("phoneId").toInt();
+    
+    Serial.print("ID do telefone recebido: ");
+    Serial.println(phoneId);
+    Serial.print("Número recebido: ");
+    Serial.println(number);
+    Serial.print("Operadora recebida: ");
+    Serial.println(operadora);
+      
+    int phoneAddress;
+    switch (phoneId) {
+      case 1: phoneAddress = P1_ADDRS; break;
+      case 2: phoneAddress = P2_ADDRS; break;
+      case 3: phoneAddress = P3_ADDRS; break;
+      case 4: phoneAddress = P4_ADDRS; break;
+      case 5: phoneAddress = P5_ADDRS; break;
+      default: 
+        Serial.println("ID do telefone inválido recebido");
+        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+        return;
+    }
+    
+    Serial.print("Escrevendo dados do telefone no endereço: ");
+    Serial.println(phoneAddress);
+    
+    Telefone telefone = buildTelephone(phoneId, number, operadora);
+    writeTelefone(phoneAddress, telefone);
+    
+    server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+  /*}
+  server.send(400, "text/html", "<html><body><h1>Argumentos phoneId, number e operator ausentes</h1><a href='index.html'>Voltar</a></body></html>");
+  */
+}
+
+
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(EEPROM_SIZE);
@@ -1472,6 +1669,8 @@ void setup() {
   server.on("/sendMessageRequest.html", handleSendSmsRequest);
   server.on("/sendCall.html", handleSendCallRequest);
   server.on("/delete.html", handleDelete);
+  server.on("/alteraTelefone.html", handleAlteraTelefone);
+  server.on("/alteraPhone", handleSaveAlterPhone);
 
   server.begin();
   Serial.println("HTTP server started");
