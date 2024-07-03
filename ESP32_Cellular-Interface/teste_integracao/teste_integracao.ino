@@ -719,27 +719,27 @@ void returnAllMemoryAddressMessages(int phoneId, int * listMessages){
     }
   } else if (phoneId == 3){
     EEPROM.get(M11_ADDRS, mensagem);
-    if (mensagem.id == 0) {
+    if (mensagem.id != 0) {
       listMessages[0] = M11_ADDRS;
     }
 
     EEPROM.get(M12_ADDRS, mensagem);
-    if (mensagem.id == 0) {
+    if (mensagem.id != 0) {
       listMessages[1] = M12_ADDRS;
     }
 
     EEPROM.get(M13_ADDRS, mensagem);
-    if (mensagem.id == 0) {
+    if (mensagem.id != 0) {
       listMessages[2] = M13_ADDRS;
     }
 
     EEPROM.get(M14_ADDRS, mensagem);
-    if (mensagem.id == 0) {
+    if (mensagem.id != 0) {
       listMessages[3] = M14_ADDRS;
     }
 
     EEPROM.get(M15_ADDRS, mensagem);
-    if (mensagem.id == 0) {
+    if (mensagem.id != 0) {
       listMessages[4] = M15_ADDRS;
     }
   } else if (phoneId == 4) {
@@ -822,8 +822,7 @@ void returnAllMemoryAddressPhones(int* listPhones) {
     listPhones[3] = P4_ADDRS;
   }
 
-  resetPhone(telefone);
-  Serial.println(telefone.id);
+  EEPROM.get(P5_ADDRS, telefone);  
   if (telefone.id != 0) {
     listPhones[4] = P5_ADDRS;
   }
@@ -1094,6 +1093,7 @@ void handleVisualizar() {
 
   String divs = "";
   for (int i = 0; i < MAX_PHONES; i++) {
+    Serial.println(String(i));
     if(listPhones[i] >= 0){
       readTelefone(listPhones[i], telefone);
       if (telefone.id > 0) {
@@ -1201,7 +1201,7 @@ void handleSendSms() {
       if (mensagem.id > 0) {
         messagesHtml += "<div class=\"container-flex\">";
         messagesHtml += "<p class=\"paragrafo\">" + String(mensagem.mensagem) + ".</p>";
-        messagesHtml += "<a class='btn btn-call' href='sendMessageRequest.html?phoneId=" + String(phoneId) + "&messageId=" + String(mensagem.id) + ">Enviar</a>";
+        messagesHtml += "<a class='btn btn-call' href='sendMessageRequest.html?phoneId=" + String(phoneId) + "&messageId=" + String(mensagem.id) + "'>Enviar</a>";
         messagesHtml += "</div>";
       }
     }
@@ -1261,7 +1261,6 @@ void printTelefone(int address) {
   Serial.print(", operadora = ");
   Serial.println(telefone.operadora);
 }
-
 
 void clearEEPROM() {
   for (int i = 0; i < EEPROM_SIZE; i++) {
