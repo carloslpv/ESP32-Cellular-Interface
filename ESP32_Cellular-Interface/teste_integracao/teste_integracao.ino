@@ -1610,31 +1610,28 @@ void handleAlteraTelefone() {
 }
 
 void handleSaveAlterPhone() {
-  //if (server.hasArg("phoneId") && server.hasArg("number") && server.hasArg("operator")) {
-    String number = server.arg("number");
-    String operadora = server.arg("operator");
-    int phoneId = server.arg("phoneId").toInt();
-      
-    int phoneAddress;
-    switch (phoneId) {
-      case 1: phoneAddress = P1_ADDRS; break;
-      case 2: phoneAddress = P2_ADDRS; break;
-      case 3: phoneAddress = P3_ADDRS; break;
-      case 4: phoneAddress = P4_ADDRS; break;
-      case 5: phoneAddress = P5_ADDRS; break;
-      default: 
-        server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
-        return;
-    }
+  String number = server.arg("number");
+  String operadora = server.arg("operator");
+  int phoneId = server.arg("phoneId").toInt();
     
-    Telefone telefone = buildTelephone(phoneId, number, operadora);
-    writeTelefone(phoneAddress, telefone);
-    Serial.println("Cadastro de telefone alterado...");
-    
-    server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
-  /*}
-  server.send(400, "text/html", "<html><body><h1>Argumentos phoneId, number e operator ausentes</h1><a href='index.html'>Voltar</a></body></html>");
-  */
+  int phoneAddress;
+  switch (phoneId) {
+    case 1: phoneAddress = P1_ADDRS; break;
+    case 2: phoneAddress = P2_ADDRS; break;
+    case 3: phoneAddress = P3_ADDRS; break;
+    case 4: phoneAddress = P4_ADDRS; break;
+    case 5: phoneAddress = P5_ADDRS; break;
+    default: 
+      server.send(400, "text/html", "<html><body><h1>ID do telefone inválido</h1><a href='index.html'>Voltar</a></body></html>");
+      return;
+  }
+  
+  Telefone telefone = buildTelephone(phoneId, number, operadora);
+  writeTelefone(phoneAddress, telefone);
+  Serial.println("Cadastro de telefone alterado...");
+  
+  server.send(200, "text/html", "<html><body><h1>Dados Alterados com Sucesso</h1><a href='index.html'>Voltar</a></body></html>");
+
 }
 
 
