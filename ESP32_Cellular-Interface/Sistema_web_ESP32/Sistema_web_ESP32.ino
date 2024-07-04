@@ -1430,12 +1430,16 @@ void handleSavePhone() {
     if (id < 0) {
       String html = msgReturn("Limite de números atingidos, faça a exclusão de um cadastro de Telefone para seguir", retorno_html);
       server.send(400, "text/html", html);
+    } else if (number.length() <= 0) {
+      String html = msgReturn("Número não informado", retorno_html);
+      server.send(400, "text/html", html);  
+    } else {
+      Telefone telefone = buildTelephone(id, number, operatorName);
+      writeTelefone(memoryAddress, telefone);
+      Serial.println("Telefone cadastrado com sucesso!");
+      String html = msgReturn("Dados cadastrados com sucesso", retorno_html);
+      server.send(200, "text/html", html);
     }
-    Telefone telefone = buildTelephone(id, number, operatorName);
-    writeTelefone(memoryAddress, telefone);
-    Serial.println("Telefone cadastrado com sucesso!");
-    String html = msgReturn("Dados cadastrados com sucesso", retorno_html);
-    server.send(200, "text/html", html);
   } else {
     String html = msgReturn("Erro ao salvar os dados", retorno_html);
     server.send(400, "text/html", html);
@@ -1481,7 +1485,7 @@ void handleSaveMessage(){
     int phoneId = checkPhoneIndexWithAddress(phoneMemoryAddress);
     int messageMemoryAddress = checkFreeMessageMemoryAddress(phoneId);
     int messageIndex = checkMessageIndexWithAddress(messageMemoryAddress);
-    if(messageIndex >= 0){
+    if(messageIndex >= 0 && message.length() > 0){
       Mensagem mensagem = buildMensagem(messageIndex, phoneId, message);
       writeMensagem(messageMemoryAddress, mensagem);
       Serial.println("Mensagem cadastrada com sucesso...");
@@ -1489,6 +1493,9 @@ void handleSaveMessage(){
       server.send(200, "text/html", html);
     } else if(messageIndex < 0){
       String html = msgReturn("Limite de mensagens excedido, favor excluir um cadastro", retorno_html);
+      server.send(400, "text/html", html);
+    } else if(message.length() <= 0){
+      String html = msgReturn("Conteúdo da mensagem não informado", retorno_html);
       server.send(400, "text/html", html);
     }
   }
@@ -1831,7 +1838,7 @@ void handleSaveAlterPhone() {
     String number = server.arg("number");
     String operadora = server.arg("operator");
     int phoneId = server.arg("phoneId").toInt();
-      
+    
     int phoneAddress;
     switch (phoneId) {
       case 1: phoneAddress = P1_ADDRS; break;
@@ -1846,10 +1853,15 @@ void handleSaveAlterPhone() {
     }
     
     Telefone telefone = buildTelephone(phoneId, number, operadora);
-    writeTelefone(phoneAddress, telefone);
-    Serial.println("Cadastro de telefone alterado...");
-    String html = msgReturn("Cadastro de telefone alterado com sucesso", retorno_html);
-    server.send(200, "text/html", html);
+    if (number.length() <= 0) {
+      String html = msgReturn("Número não informado", retorno_html);
+      server.send(400, "text/html", html);  
+    }else{
+      writeTelefone(phoneAddress, telefone);
+      Serial.println("Cadastro de telefone alterado...");
+      String html = msgReturn("Cadastro de telefone alterado com sucesso", retorno_html);
+      server.send(200, "text/html", html);
+    }
   }
   String html = msgReturn("Erro ao alterar cadastro do telefone, parâmetros de solicitação ausentes", retorno_html);
   server.send(400, "text/html", html);
@@ -1923,9 +1935,14 @@ void handleSaveAlterMessage(){
         return;
     }
     Mensagem mensagem = buildMensagem(messageId, phoneId, message);
-    writeMensagem(messageAddress, mensagem);
-    String html = msgReturn("Cadastro de mensagem alterado com sucesso", retorno_html);
-    server.send(200, "text/html", html);
+    if(message.length() > 0){
+      writeMensagem(messageAddress, mensagem);
+      String html = msgReturn("Cadastro de mensagem alterado com sucesso", retorno_html);
+      server.send(200, "text/html", html);
+    }else{
+      String html = msgReturn("Conteúdo da mensagem não informado", retorno_html);
+      server.send(400, "text/html", html);
+    }
   }
   String html = msgReturn("Erro ao realizar a alteração do cadastro de mensagem, parâmetros de solicitação ausentes", retorno_html);
   server.send(400, "text/html", html);
